@@ -1,0 +1,83 @@
+---
+// Barra de compra fija: aparece cuando el botón principal sale de pantalla.
+import type { Product } from "@/config/types";
+import Price from "@/components/ui/Price.astro";
+
+interface Props {
+  product: Product;
+}
+const { product } = Astro.props;
+---
+
+<div class="sticky" id="sticky-buy" aria-hidden="true">
+  <div class="wrap sticky__in">
+    <div class="sticky__info">
+      <span class="sticky__name">{product.name}</span>
+      <Price product={product} size="md" />
+    </div>
+    <button type="button" class="btn btn-cta" data-buy tabindex="-1">Comprar ahora</button>
+  </div>
+</div>
+
+<script>
+  const bar = document.getElementById("sticky-buy");
+  const anchor = document.getElementById("comprar");
+  if (bar && anchor) {
+    const button = bar.querySelector("button")!;
+    new IntersectionObserver(([entry]) => {
+      const show = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+      bar.classList.toggle("is-on", show);
+      bar.setAttribute("aria-hidden", String(!show));
+      button.tabIndex = show ? 0 : -1;
+    }).observe(anchor);
+  }
+</script>
+
+<style>
+  .sticky {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 35;
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -12px 30px -18px rgb(0 0 0 / 0.3);
+    padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+    transform: translateY(110%);
+    transition: transform 0.3s ease;
+  }
+  .sticky.is-on {
+    transform: none;
+  }
+  .sticky__in {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .sticky__info {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  .sticky__name {
+    font-weight: 700;
+    font-size: 0.92rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sticky :global(.price__now) {
+    font-size: 1.35rem !important;
+  }
+  .sticky :global(.price__off) {
+    display: none;
+  }
+  @media (max-width: 520px) {
+    .sticky__name {
+      display: none;
+    }
+  }
+</style>

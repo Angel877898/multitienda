@@ -1,0 +1,78 @@
+---
+import type { Product } from "@/config/types";
+import Icon from "@/components/ui/Icon.astro";
+
+interface Props {
+  benefits: Product["benefits"];
+}
+const { benefits } = Astro.props;
+// 3 columnas si el número de tarjetas es múltiplo de 3 (o 5+); 2 columnas para 2 o 4.
+const cols = benefits.items.length % 3 === 0 || benefits.items.length > 4 ? 3 : 2;
+---
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title reveal">{benefits.title}</h2>
+    <div class="grid" style={`--cols:${cols}`}>
+      {
+        benefits.items.map((b) => (
+          <article class="benefit reveal">
+            <span class="benefit__icon">
+              <Icon name={b.icon} size={26} />
+            </span>
+            <h3>{b.title}</h3>
+            <p>{b.text}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid {
+    margin-top: 44px;
+    display: grid;
+    grid-template-columns: repeat(var(--cols), 1fr);
+    gap: 18px;
+  }
+  @media (max-width: 900px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .benefit {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 26px;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .benefit:hover {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+    transform: translateY(-3px);
+  }
+  .benefit__icon {
+    display: inline-grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: calc(var(--radius) * 0.7);
+    background: color-mix(in srgb, var(--accent) 11%, transparent);
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .benefit h3 {
+    font-size: 1.25rem;
+    margin-bottom: 6px;
+  }
+  .benefit p {
+    margin: 0;
+    color: var(--muted);
+  }
+</style>

@@ -1,0 +1,71 @@
+---
+import type { Brand } from "@/config/types";
+
+interface Props {
+  brand: Brand;
+  /** Versión para fondos oscuros. */
+  inverted?: boolean;
+}
+const { brand, inverted = false } = Astro.props;
+---
+
+<a href="/" class:list={["logo", { "logo--inv": inverted }]} aria-label={`${brand.name}, inicio`}>
+  {
+    brand.logoFull ? (
+      <img src={brand.logoFull} alt={brand.name} height="36" />
+    ) : (
+      <>
+        <img src={brand.logoMark} alt="" width="40" height="40" />
+        {brand.logoWords ? (
+          <span class="logo__words">
+            <span class="logo__w1">{brand.logoWords[0]}</span>
+            <span class="logo__w2">{brand.logoWords[1]}</span>
+          </span>
+        ) : (
+          <span>{brand.name}</span>
+        )}
+      </>
+    )
+  }
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text);
+    font-family: var(--font-heading);
+    font-weight: var(--heading-weight);
+    font-size: 1.28rem;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .logo img {
+    height: 40px;
+    width: auto;
+  }
+  .logo__words {
+    display: grid;
+    gap: 3px;
+    text-transform: uppercase;
+  }
+  .logo__w1 {
+    font-weight: 700;
+    font-size: 1.02rem;
+    letter-spacing: 0.06em;
+  }
+  .logo__w2 {
+    font-weight: 400;
+    font-size: 0.72rem;
+    letter-spacing: 0.34em;
+    color: var(--accent);
+  }
+  .logo--inv {
+    color: var(--on-dark);
+  }
+  .logo--inv .logo__w2 {
+    color: var(--highlight);
+  }
+</style>

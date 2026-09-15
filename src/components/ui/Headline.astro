@@ -1,0 +1,14 @@
+---
+// Pinta un titular resaltando la parte escrita entre *asteriscos*.
+interface Props {
+  text: string;
+  as?: "h1" | "h2" | "h3";
+  class?: string;
+}
+const { text, as: Tag = "h1", class: className } = Astro.props;
+const parts = text.split("*");
+---
+
+<Tag class={className}>
+  {parts.map((part: string, i: number) => (i % 2 === 1 ? <span class="hl">{part}</span> : part))}
+</Tag>

@@ -1,0 +1,150 @@
+---
+// "Mira por dentro": páginas reales del PDF con visor ampliado.
+import type { Product } from "@/config/types";
+
+interface Props {
+  previews: NonNullable<Product["previews"]>;
+}
+const { previews } = Astro.props;
+---
+
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow center reveal">Mira por dentro</p>
+    <h2 class="section-title reveal">Así se ve lo que vas a recibir</h2>
+    <p class="section-lede reveal">
+      Páginas reales del material. Toca cualquier página para verla en grande.
+    </p>
+
+    <ul class="pages">
+      {
+        previews.map((p, i) => (
+          <li class="reveal" style={`--i:${i}`}>
+            <button type="button" class="page" data-preview={p.src} data-caption={p.caption}>
+              <img src={p.src} alt={p.caption} loading="lazy" decoding="async" />
+            </button>
+            <span class="page__cap">{p.caption}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <dialog class="viewer" id="page-viewer" aria-label="Vista ampliada de la página">
+    <button type="button" class="viewer__x" aria-label="Cerrar">✕</button>
+    <img alt="" />
+    <p></p>
+  </dialog>
+</section>
+
+<script>
+  const viewer = document.getElementById("page-viewer") as HTMLDialogElement | null;
+  if (viewer) {
+    const img = viewer.querySelector("img")!;
+    const cap = viewer.querySelector("p")!;
+    document.querySelectorAll<HTMLButtonElement>("[data-preview]").forEach((btn) =>
+      btn.addEventListener("click", () => {
+        img.src = btn.dataset.preview!;
+        img.alt = btn.dataset.caption ?? "";
+        cap.textContent = btn.dataset.caption ?? "";
+        viewer.showModal();
+      })
+    );
+    viewer.addEventListener("click", () => viewer.close());
+  }
+</script>
+
+<style>
+  .center {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+  .pages {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 22px;
+  }
+  .pages li {
+    display: grid;
+    gap: 12px;
+    justify-items: center;
+  }
+  .page {
+    display: block;
+    padding: 0;
+    border: none;
+    background: var(--surface);
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: zoom-in;
+    box-shadow:
+      0 1px 0 var(--line),
+      0 26px 50px -28px rgb(0 0 0 / 0.45);
+    transform: rotate(calc((var(--i) - 1.5) * 1.2deg));
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .page:hover,
+  .page:focus-visible {
+    transform: translateY(-6px) rotate(0deg);
+    box-shadow: 0 36px 60px -26px rgb(0 0 0 / 0.5);
+  }
+  .page img {
+    width: 100%;
+    aspect-ratio: 17 / 22;
+    object-fit: cover;
+    object-position: top;
+  }
+  .page__cap {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: center;
+  }
+  .viewer {
+    border: none;
+    padding: 0;
+    background: transparent;
+    max-width: min(760px, 94vw);
+    max-height: 94dvh;
+    overflow: visible;
+  }
+  .viewer::backdrop {
+    background: rgb(8 6 16 / 0.82);
+  }
+  .viewer img {
+    max-height: 86dvh;
+    width: auto;
+    margin: 0 auto;
+    border-radius: 6px;
+  }
+  .viewer p {
+    color: #fff;
+    text-align: center;
+    margin: 12px 0 0;
+    font-weight: 600;
+  }
+  .viewer__x {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: #fff;
+    color: #111;
+    cursor: pointer;
+    font-size: 1rem;
+    z-index: 1;
+  }
+  @media (max-width: 560px) {
+    .pages {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+  }
+</style>

@@ -1,0 +1,74 @@
+---
+interface Props {
+  items: { q: string; a: string }[];
+}
+const { items } = Astro.props;
+---
+
+<section class="section section--alt">
+  <div class="wrap wrap-narrow">
+    <h2 class="section-title reveal">Preguntas frecuentes</h2>
+    <div class="faq reveal">
+      {
+        items.map((item, i) => (
+          <details open={i === 0}>
+            <summary>{item.q}</summary>
+            <p>{item.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq {
+    margin-top: 40px;
+    display: grid;
+    gap: 10px;
+  }
+  details {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 0 22px;
+  }
+  details[open] {
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  }
+  summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 0;
+    font-weight: 700;
+    font-size: 1.04rem;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary::after {
+    content: "+";
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--surface-alt);
+    color: var(--accent);
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: transform 0.2s ease;
+  }
+  details[open] summary::after {
+    transform: rotate(45deg);
+  }
+  details p {
+    margin: 0 0 20px;
+    color: var(--muted);
+  }
+</style>

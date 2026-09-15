@@ -1,0 +1,182 @@
+---
+import "@/styles/global.css";
+import type { Brand, Theme } from "@/config/types";
+import BrandLogo from "@/components/BrandLogo.astro";
+import { mergeTheme, themeVars } from "@/lib/theme";
+
+interface Props {
+  brand: Brand;
+  title?: string;
+  description?: string;
+  /** Oculta la barra de anuncio (ej. en páginas de gracias). */
+  bare?: boolean;
+  /** Colores propios de la página (ej. los de un producto). */
+  theme?: Partial<Theme>;
+  /** Imagen para compartir en redes (ruta pública). */
+  image?: string;
+}
+
+const { brand, title, description, bare = false, theme, image } = Astro.props;
+const t = mergeTheme(brand.theme, theme);
+const pageTitle = title ? `${title} | ${brand.name}` : `${brand.name} · ${brand.tagline}`;
+const pageDesc = description ?? brand.tagline;
+const origin = `https://${brand.domains[0]}`;
+const cssVars = `:root{${themeVars(t)}}`;
+---
+
+<!doctype html>
+<html lang="es-MX">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDesc} />
+    <meta name="theme-color" content={t.accent} />
+    <link rel="icon" type="image/svg+xml" href={brand.logoMark} />
+    <link rel="canonical" href={`${origin}${Astro.url.pathname}`} />
+    {image && <meta property="og:image" content={`${origin}${image}`} />}
+    <meta property="og:site_name" content={brand.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDesc} />
+    <meta property="og:type" content="website" />
+    {t.fontUrl && <link rel="preconnect" href="https://fonts.googleapis.com" />}
+    {t.fontUrl && <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />}
+    {t.fontUrl && <link rel="stylesheet" href={t.fontUrl} />}
+    <style set:html={cssVars}></style>
+  </head>
+  <body>
+    {!bare && brand.announcement && <div class="announce">{brand.announcement}</div>}
+
+    <header class="site-head">
+      <div class="wrap site-head__in">
+        <BrandLogo brand={brand} />
+        <slot name="header-action" />
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap site-foot__in">
+        <div>
+          <BrandLogo brand={brand} inverted />
+          <p class="site-foot__tag">{brand.tagline}</p>
+        </div>
+        <nav class="site-foot__nav" aria-label="Productos">
+          <p class="site-foot__title">Productos</p>
+          <ul>
+            {brand.products.map((p) => <li><a href={`/${p.slug}`}>{p.cover.title}</a></li>)}
+          </ul>
+        </nav>
+        <div class="site-foot__meta">
+          <p class="site-foot__title">Contacto</p>
+          <p>
+            Soporte: <a href={`mailto:${brand.contact.supportEmail}`}>{brand.contact.supportEmail}</a>
+            {brand.contact.whatsapp && <> · WhatsApp {brand.contact.whatsapp}</>}
+          </p>
+          <p>Pagos procesados de forma segura por Mercado Pago.</p>
+          {brand.legalNote && <p class="site-foot__legal">{brand.legalNote}</p>}
+          <p>© {new Date().getFullYear()} {brand.name}</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Aparición suave de secciones al entrar en pantalla.
+      const io = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("is-in");
+              io.unobserve(e.target);
+            }
+          }),
+        { rootMargin: "0px 0px -8% 0px" }
+      );
+      document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+    </script>
+
+    <style>
+      .announce {
+        background: var(--dark);
+        color: var(--on-dark);
+        text-align: center;
+        font-size: 0.86rem;
+        font-weight: 600;
+        padding: 9px 16px;
+      }
+      .site-head {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        background: color-mix(in srgb, var(--bg) 86%, transparent);
+        backdrop-filter: saturate(1.4) blur(12px);
+        border-bottom: 1px solid var(--line);
+      }
+      .site-head__in {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        height: 68px;
+      }
+      .site-foot {
+        background: var(--dark);
+        color: color-mix(in srgb, var(--on-dark) 78%, transparent);
+        padding: 52px 0 96px;
+        font-size: 0.9rem;
+      }
+      .site-foot {
+        background-image: var(--pattern);
+        background-size: 400px;
+      }
+      .site-foot__in {
+        display: grid;
+        grid-template-columns: 1.1fr 0.8fr 1.3fr;
+        gap: 32px;
+      }
+      .site-foot__title {
+        color: var(--on-dark);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 0.75rem;
+        margin: 6px 0 14px !important;
+      }
+      .site-foot__nav ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 8px;
+      }
+      .site-foot__nav a {
+        text-decoration: none;
+      }
+      .site-foot__nav a:hover {
+        text-decoration: underline;
+      }
+      .site-foot__tag {
+        margin: 14px 0 0;
+        max-width: 36ch;
+      }
+      .site-foot__meta p {
+        margin: 0 0 8px;
+      }
+      .site-foot__legal {
+        font-size: 0.8rem;
+        opacity: 0.8;
+      }
+      .site-foot a {
+        color: var(--on-dark);
+      }
+      @media (max-width: 760px) {
+        .site-foot__in {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </body>
+</html>

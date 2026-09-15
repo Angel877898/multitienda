@@ -1,0 +1,48 @@
+---
+import type { Product } from "@/config/types";
+import { formatMoney } from "@/lib/money";
+
+interface Props {
+  product: Product;
+  size?: "md" | "lg";
+}
+const { product, size = "lg" } = Astro.props;
+const off =
+  product.compareAtPrice && product.compareAtPrice > product.price
+    ? Math.round((1 - product.price / product.compareAtPrice) * 100)
+    : 0;
+---
+
+<div class="price" data-size={size}>
+  <span class="price__now">
+    {formatMoney(product.price, product.currency).replace(".00", "")}<span class="price__cur">{product.currency}</span>
+  </span>
+  {
+    off > 0 && (
+      <>
+        <span class="price__was">{formatMoney(product.compareAtPrice!, product.currency).replace(".00", "")}</span>
+        <span class="price__off">-{off}%</span>
+      </>
+    )
+  }
+</div>
+
+<style>
+  /* Moneda explícita: "$99 MXN". */
+  .price__cur {
+    font-size: 0.4em;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    margin-left: 0.3em;
+    opacity: 0.8;
+  }
+  .price[data-size="md"] .price__now {
+    font-size: 1.7rem;
+  }
+  .price[data-size="md"] .price__cur {
+    font-size: 0.52em;
+  }
+  .price[data-size="md"] .price__was {
+    font-size: 0.95rem;
+  }
+</style>

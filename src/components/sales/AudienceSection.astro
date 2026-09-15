@@ -1,0 +1,97 @@
+---
+import type { Product } from "@/config/types";
+import Icon from "@/components/ui/Icon.astro";
+
+interface Props {
+  audience: NonNullable<Product["audience"]>;
+}
+const { audience } = Astro.props;
+---
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title reveal">¿Es para ti?</h2>
+    <div class:list={["cols", { "cols--single": !audience.notFor?.length }]}>
+      <div class="col col--yes reveal">
+        <h3>Es para ti si…</h3>
+        <ul class="checks">
+          {
+            audience.forWho.map((x) => (
+              <li>
+                <Icon name="check" size={20} />
+                <span>{x}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      {
+        audience.notFor?.length ? (
+          <div class="col col--no reveal">
+            <h3>No es para ti si…</h3>
+            <ul class="nos">
+              {audience.notFor.map((x) => (
+                <li>{x}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .cols {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 18px;
+  }
+  .cols--single {
+    grid-template-columns: 1fr;
+    max-width: 720px;
+    margin-inline: auto;
+  }
+  .col {
+    border-radius: var(--radius);
+    padding: 30px;
+  }
+  .col h3 {
+    font-size: 1.35rem;
+    margin-bottom: 18px;
+  }
+  .col--yes {
+    background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+    border: 1.5px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+  .col--no {
+    background: var(--surface);
+    border: 1px dashed var(--line);
+    color: var(--muted);
+  }
+  .nos {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .nos li {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 12px;
+  }
+  .nos li::before {
+    content: "✕";
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.9;
+    text-align: center;
+  }
+  @media (max-width: 760px) {
+    .cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

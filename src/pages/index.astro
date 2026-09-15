@@ -1,0 +1,277 @@
+---
+// Home de la marca: presentación + colección completa.
+import BrandLayout from "@/layouts/BrandLayout.astro";
+import ProductCover from "@/components/ProductCover.astro";
+import ProductCard from "@/components/ProductCard.astro";
+import Headline from "@/components/ui/Headline.astro";
+import Icon from "@/components/ui/Icon.astro";
+import { resolveBrand } from "@/lib/brand";
+
+const brand = resolveBrand(Astro.request);
+const dark = brand.theme.heroStyle === "dark";
+const shelf = brand.products.slice(0, 4);
+const minPrice = Math.min(...brand.products.map((p) => p.price));
+---
+
+<BrandLayout brand={brand}>
+  <a slot="header-action" href="#coleccion" class="btn btn-ghost head-link">Ver colección</a>
+
+  <section class:list={["home-hero", { "home-hero--dark": dark }]}>
+    {brand.heroArt && <img class="home-hero__art" src={brand.heroArt} alt="" aria-hidden="true" />}
+    <div class="wrap home-hero__in">
+      <div class="home-hero__copy">
+        <span class="eyebrow">{brand.home.eyebrow ?? brand.tagline}</span>
+        <Headline text={brand.home.headline} class="home-hero__title" />
+        <p class="home-hero__sub">{brand.home.subheadline}</p>
+        <div class="home-hero__actions">
+          <a class="btn btn-cta btn-lg" href="#coleccion">Ver la colección</a>
+          <span class="home-hero__from">Desde ${minPrice} MXN · PDF de descarga inmediata</span>
+        </div>
+        <ul class="home-hero__trust">
+          <li><Icon name="download" size={18} /> Recíbelo al instante</li>
+          <li><Icon name="lock" size={18} /> Pago seguro con Mercado Pago</li>
+          <li><Icon name="shield" size={18} /> Tarjeta, OXXO o SPEI</li>
+        </ul>
+      </div>
+
+      <div class="shelf" aria-label="Productos destacados">
+        {
+          shelf.map((p, i) => (
+            <a class="shelf__item" href={`/${p.slug}`} style={`--i:${i};--n:${shelf.length}`} aria-label={p.name}>
+              <ProductCover brand={brand} product={p} variant="card" />
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="coleccion">
+    <div class="wrap">
+      <p class="eyebrow center">La colección</p>
+      <h2 class="section-title">Elige por dónde empezar</h2>
+      <p class="section-lede">
+        Cada material es un PDF listo para descargar en cuanto se confirma tu pago. Todos a ${minPrice} MXN.
+      </p>
+      <div class="catalog">
+        {brand.products.map((p) => <ProductCard brand={brand} product={p} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap steps">
+      <h2 class="section-title">Así de simple</h2>
+      <ol>
+        <li>
+          <span>1</span>
+          <h3>Elige tu material</h3>
+          <p>Lee de qué trata, mira sus páginas por dentro y decide cuál es para ti.</p>
+        </li>
+        <li>
+          <span>2</span>
+          <h3>Paga seguro</h3>
+          <p>Con tarjeta de crédito o débito, saldo de Mercado Pago, OXXO o transferencia SPEI.</p>
+        </li>
+        <li>
+          <span>3</span>
+          <h3>Descárgalo al instante</h3>
+          <p>Te aparece el botón de descarga y además te llega a tu correo. Es tuyo para siempre.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+</BrandLayout>
+
+<style>
+  .head-link {
+    padding: 9px 18px;
+    font-size: 0.92rem;
+  }
+  .center {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+
+  .home-hero {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(48px, 8vw, 100px) 0;
+    background:
+      radial-gradient(900px 480px at 90% 10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent),
+      var(--bg);
+  }
+  .home-hero--dark {
+    color: var(--on-dark);
+    background:
+      radial-gradient(760px 560px at 72% 45%, color-mix(in srgb, var(--glow) 55%, transparent), transparent 70%),
+      var(--pattern),
+      linear-gradient(180deg, var(--dark), color-mix(in srgb, var(--dark) 70%, #000));
+    background-size: auto, 400px, auto;
+  }
+  .home-hero__art {
+    position: absolute;
+    width: min(760px, 90vw);
+    right: -8%;
+    top: 50%;
+    translate: 0 -50%;
+    opacity: 0.12;
+    pointer-events: none;
+    animation: spin 120s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+  .home-hero__in {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(28px, 5vw, 72px);
+    align-items: center;
+  }
+  :global(.home-hero__title) {
+    font-size: clamp(2.4rem, 5.6vw, 4.1rem);
+    margin: 16px 0 18px;
+  }
+  .home-hero__sub {
+    font-size: clamp(1.05rem, 1.7vw, 1.25rem);
+    color: var(--muted);
+    max-width: 52ch;
+    margin: 0 0 30px;
+  }
+  .home-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 20px;
+  }
+  .home-hero__from {
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--muted);
+  }
+  .home-hero__trust {
+    list-style: none;
+    padding: 0;
+    margin: 28px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .home-hero__trust li {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .home-hero__trust :global(svg) {
+    color: var(--accent);
+  }
+  .home-hero--dark .eyebrow,
+  .home-hero--dark .home-hero__trust :global(svg) {
+    color: var(--highlight);
+  }
+  .home-hero--dark :global(.hl) {
+    color: var(--highlight);
+    background: none;
+    text-decoration: underline 3px color-mix(in srgb, var(--highlight) 55%, transparent);
+    text-underline-offset: 0.16em;
+  }
+  .home-hero--dark .home-hero__sub,
+  .home-hero--dark .home-hero__from,
+  .home-hero--dark .home-hero__trust {
+    color: color-mix(in srgb, var(--on-dark) 75%, transparent);
+  }
+
+  /* Portadas en abanico. */
+  .shelf {
+    position: relative;
+    height: clamp(300px, 36vw, 440px);
+  }
+  .shelf__item {
+    --spread: clamp(70px, 9vw, 120px);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: clamp(150px, 17vw, 215px);
+    translate: calc(-50% + (var(--i) - (var(--n) - 1) / 2) * var(--spread))
+      calc(-50% + (var(--i) - (var(--n) - 1) / 2) * (var(--i) - (var(--n) - 1) / 2) * 10px);
+    rotate: calc((var(--i) - (var(--n) - 1) / 2) * 7deg);
+    z-index: calc(10 - var(--i));
+    filter: drop-shadow(0 26px 30px rgb(0 0 0 / 0.45));
+    transition: translate 0.35s ease, rotate 0.35s ease, scale 0.35s ease;
+  }
+  .shelf__item:hover,
+  .shelf__item:focus-visible {
+    z-index: 20;
+    scale: 1.08;
+    rotate: 0deg;
+  }
+
+  .catalog {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr));
+    gap: 20px;
+  }
+
+  .steps ol {
+    list-style: none;
+    padding: 0;
+    margin: 40px 0 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .steps li {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 26px;
+  }
+  .steps li span {
+    display: inline-grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .steps h3 {
+    font-size: 1.2rem;
+    margin-bottom: 6px;
+  }
+  .steps p {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  @media (max-width: 880px) {
+    .home-hero__in {
+      grid-template-columns: 1fr;
+    }
+    .shelf {
+      order: -1;
+      height: 260px;
+    }
+    .shelf__item {
+      --spread: 62px;
+      width: 130px;
+    }
+    .steps ol {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home-hero__art {
+      animation: none;
+    }
+  }
+</style>

@@ -1,0 +1,211 @@
+---
+// Ventana de compra: pide el correo y redirige a Mercado Pago.
+// Cualquier elemento con [data-buy] en la página la abre.
+import type { Product } from "@/config/types";
+import Price from "@/components/ui/Price.astro";
+import Icon from "@/components/ui/Icon.astro";
+
+interface Props {
+  product: Product;
+}
+const { product } = Astro.props;
+---
+
+<dialog id="buy-dialog" class="buy" aria-labelledby="buy-title" data-product-id={product.id}>
+  <form class="buy__card" novalidate>
+    <button type="button" class="buy__x" data-close aria-label="Cerrar">✕</button>
+
+    <p class="eyebrow">Estás a un paso</p>
+    <h2 id="buy-title" class="buy__title">{product.name}</h2>
+    <Price product={product} size="md" />
+
+    <label class="buy__field">
+      <span>¿A qué correo te enviamos tu PDF?</span>
+      <input
+        type="email"
+        name="email"
+        inputmode="email"
+        autocomplete="email"
+        placeholder="tucorreo@ejemplo.com"
+        required
+      />
+    </label>
+    <p class="buy__err" role="alert" hidden></p>
+
+    <button type="submit" class="btn btn-cta btn-lg btn-block">
+      <Icon name="lock" size={18} />
+      <span data-label>Continuar al pago seguro</span>
+    </button>
+
+    <ul class="buy__methods" aria-label="Métodos de pago">
+      <li>Tarjeta</li>
+      <li>OXXO</li>
+      <li>SPEI</li>
+      <li>Mercado Pago</li>
+    </ul>
+    <p class="buy__note">
+      Serás redirigido a Mercado Pago. Al confirmarse el pago descargas tu PDF al instante y también
+      te llega por correo.
+    </p>
+  </form>
+</dialog>
+
+<script>
+  const dialog = document.getElementById("buy-dialog") as HTMLDialogElement | null;
+  if (dialog) {
+    const form = dialog.querySelector("form")!;
+    const input = form.querySelector<HTMLInputElement>('input[name="email"]')!;
+    const err = form.querySelector<HTMLParagraphElement>(".buy__err")!;
+    const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const label = submit.querySelector<HTMLSpanElement>("[data-label]")!;
+    const idleLabel = label.textContent;
+
+    const showError = (msg: string) => {
+      err.textContent = msg;
+      err.hidden = false;
+    };
+
+    document.querySelectorAll("[data-buy]").forEach((el) =>
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        err.hidden = true;
+        dialog.showModal();
+        input.focus();
+      })
+    );
+    dialog.querySelector("[data-close]")!.addEventListener("click", () => dialog.close());
+    // Cerrar al hacer clic fuera de la tarjeta.
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = input.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showError("Revisa tu correo: ahí te enviaremos el PDF.");
+        input.focus();
+        return;
+      }
+      err.hidden = true;
+      submit.disabled = true;
+      label.textContent = "Conectando con Mercado Pago…";
+      try {
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, productId: dialog.dataset.productId }),
+        });
+        const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+        if (!res.ok || !data.url) throw new Error(data.error || "No se pudo iniciar el pago.");
+        window.location.href = data.url;
+      } catch (e) {
+        showError(e instanceof Error ? e.message : "Ocurrió un error. Intenta de nuevo.");
+        submit.disabled = false;
+        label.textContent = idleLabel;
+      }
+    });
+  }
+</script>
+
+<style>
+  .buy {
+    border: none;
+    padding: 0;
+    background: transparent;
+    width: min(460px, calc(100% - 28px));
+    max-height: calc(100dvh - 28px);
+    color: var(--text);
+  }
+  .buy::backdrop {
+    background: rgb(10 10 20 / 0.55);
+    backdrop-filter: blur(3px);
+  }
+  .buy[open] {
+    animation: pop 0.22s ease-out;
+  }
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+  }
+  .buy__card {
+    position: relative;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 30px 26px 24px;
+    display: grid;
+    gap: 14px;
+  }
+  .buy__x {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: var(--surface-alt);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .buy__title {
+    font-size: 1.4rem;
+    margin: 0;
+    padding-right: 30px;
+  }
+  .buy__field {
+    display: grid;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-top: 6px;
+  }
+  .buy__field input {
+    font: inherit;
+    font-weight: 400;
+    font-size: 1.05rem;
+    padding: 15px 16px;
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+  }
+  .buy__field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+  .buy__err {
+    margin: 0;
+    color: #b42318;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .buy__methods {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+  .buy__methods li {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 4px 9px;
+  }
+  .buy__note {
+    margin: 0;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+</style>

@@ -1,0 +1,22 @@
+# build
+dist/
+.astro/
+
+# deps
+node_modules/
+
+# cloudflare (estado local de wrangler: R2/KV emulados)
+.wrangler/
+.dev.vars*
+
+# env
+.env
+.env.*
+!.env.example
+
+# PDFs de venta: viven en Cloudflare R2, no en el repositorio
+private/**/*.pdf
+
+# os / editor
+.DS_Store
+Thumbs.db

@@ -1,0 +1,223 @@
+---
+// Caja de oferta: todo lo que incluye, valor total vs. precio de hoy y garantía.
+import type { Brand, Product } from "@/config/types";
+import ProductCover from "@/components/ProductCover.astro";
+import Price from "@/components/ui/Price.astro";
+import Icon from "@/components/ui/Icon.astro";
+import { formatMoney } from "@/lib/money";
+
+interface Props {
+  brand: Brand;
+  product: Product;
+}
+const { brand, product } = Astro.props;
+const bonuses = product.bonuses ?? [];
+const mainValue = product.compareAtPrice ?? product.price;
+const totalValue = mainValue + bonuses.reduce((n, b) => n + b.value, 0);
+const money = (n: number) => formatMoney(n, product.currency).replace(".00", "");
+---
+
+<section class="section" id="oferta">
+  <div class="wrap wrap-narrow">
+    <h2 class="section-title reveal">Todo lo que recibes hoy</h2>
+
+    <div class="offer reveal">
+      <div class="offer__head">
+        <div class="offer__cover">
+          <ProductCover brand={brand} product={product} variant="card" />
+        </div>
+        <div>
+          <p class="eyebrow">Acceso inmediato</p>
+          <h3 class="offer__name">{product.name}</h3>
+          <p class="muted offer__sum">{product.summary}</p>
+        </div>
+      </div>
+
+      <ul class="stack">
+        <li>
+          <Icon name="book" size={20} />
+          <span><strong>{product.name}</strong></span>
+          {bonuses.length > 0 ? <s>{money(mainValue)}</s> : <span />}
+        </li>
+        {
+          (product.includes ?? []).map((item) => (
+            <li class="stack__inc">
+              <Icon name="check" size={20} />
+              <span>{item}</span>
+              <span />
+            </li>
+          ))
+        }
+        {
+          bonuses.map((b) => (
+            <li>
+              <Icon name="gift" size={20} />
+              <span>
+                <strong>Bono:</strong> {b.title}
+                <small>{b.description}</small>
+              </span>
+              <s>{money(b.value)}</s>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="offer__total">
+        {bonuses.length > 0 && <p class="muted">Valor total: <s>{money(totalValue)}</s></p>}
+        <p class="offer__today">Tu precio hoy</p>
+        <Price product={product} />
+      </div>
+
+      <button type="button" class="btn btn-cta btn-lg btn-block" data-buy>
+        Comprar y descargar ahora
+      </button>
+      <p class="offer__small">
+        <Icon name="lock" size={15} /> Pago único · Tarjeta, OXXO, SPEI o Mercado Pago
+      </p>
+    </div>
+
+    {
+      brand.guarantee && (
+        <div class="guarantee reveal">
+          <span class="guarantee__seal" aria-hidden="true">
+            <Icon name="shield" size={34} />
+          </span>
+          <div>
+            <h3>{brand.guarantee.title}</h3>
+            <p>{brand.guarantee.text}</p>
+          </div>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .offer {
+    margin-top: 40px;
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    border-radius: var(--radius);
+    padding: clamp(22px, 4vw, 38px);
+    display: grid;
+    gap: 22px;
+    box-shadow: 0 40px 80px -48px color-mix(in srgb, var(--accent) 70%, #000);
+  }
+  .offer__head {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 22px;
+    align-items: center;
+  }
+  .offer__name {
+    font-size: 1.35rem;
+    margin: 6px 0 4px;
+  }
+  .offer__sum {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+  .stack {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .stack li {
+    display: grid;
+    grid-template-columns: 22px 1fr auto;
+    gap: 12px;
+    align-items: start;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .stack :global(svg) {
+    color: var(--accent);
+    margin-top: 3px;
+  }
+  .stack__inc {
+    padding: 10px 0 !important;
+    border-bottom-style: dashed !important;
+  }
+  .stack small {
+    display: block;
+    color: var(--muted);
+    font-size: 0.86rem;
+  }
+  .stack s {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .offer__total {
+    text-align: center;
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+  }
+  .offer__total p {
+    margin: 0;
+  }
+  .offer__today {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.8rem;
+  }
+  .offer__total :global(.price) {
+    justify-content: center;
+  }
+  .offer__total :global(.price__now) {
+    font-size: 3.2rem;
+  }
+  .offer__small {
+    margin: -8px 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.84rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .guarantee {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    align-items: center;
+    padding: 24px 26px;
+    border-radius: var(--radius);
+    background: var(--surface-alt);
+  }
+  .guarantee__seal {
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--highlight);
+    color: var(--dark);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--highlight) 30%, transparent);
+  }
+  .guarantee h3 {
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+  }
+  .guarantee p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.97rem;
+  }
+  @media (max-width: 560px) {
+    .offer__head,
+    .guarantee {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+    }
+    .offer__cover {
+      width: 120px;
+    }
+  }
+</style>

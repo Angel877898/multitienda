@@ -1,0 +1,73 @@
+---
+import type { Product } from "@/config/types";
+
+interface Props {
+  pain: NonNullable<Product["pain"]>;
+}
+const { pain } = Astro.props;
+---
+
+<section class="section section--alt">
+  <div class="wrap wrap-narrow reveal">
+    <h2 class="section-title">{pain.title}</h2>
+    <ul class="pains">
+      {pain.items.map((item) => <li>{item}</li>)}
+    </ul>
+    <div class="solution">
+      <span class="solution__arrow" aria-hidden="true">↓</span>
+      <p>{pain.solution}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .pains {
+    list-style: none;
+    padding: 0;
+    margin: 36px 0 0;
+    display: grid;
+    gap: 12px;
+  }
+  .pains li {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 16px 20px 16px 52px;
+    font-size: 1.04rem;
+  }
+  .pains li::before {
+    content: "";
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    translate: 0 -50%;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--muted) 60%, transparent);
+  }
+  .solution {
+    margin-top: 28px;
+    text-align: center;
+  }
+  .solution__arrow {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  .solution p {
+    margin: 16px auto 0;
+    max-width: 56ch;
+    font-family: var(--font-heading);
+    font-weight: var(--heading-weight);
+    font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+    line-height: 1.35;
+  }
+</style>

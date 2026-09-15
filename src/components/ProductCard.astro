@@ -1,0 +1,121 @@
+---
+import type { Brand, Product } from "@/config/types";
+import ProductCover from "@/components/ProductCover.astro";
+import Price from "@/components/ui/Price.astro";
+import { colorVars, mergeTheme } from "@/lib/theme";
+
+interface Props {
+  brand: Brand;
+  product: Product;
+}
+const { brand, product } = Astro.props;
+// Cada tarjeta usa los colores de su producto.
+const dark = mergeTheme(brand.theme, product.theme).heroStyle === "dark";
+const style = colorVars(product.theme ?? {});
+---
+
+<a class:list={["card reveal", { "card--dark": dark }]} href={`/${product.slug}`} style={style}>
+  <div class="card__media">
+    <ProductCover brand={brand} product={product} variant="card" />
+  </div>
+  <div class="card__body">
+    <div class="card__tags">
+      {product.emblem && <img src={product.emblem} alt="" width="30" height="30" />}
+      {product.badge && <span class="badge">{product.badge}</span>}
+    </div>
+    <h3>{product.name}</h3>
+    <p class="card__sum">{product.summary}</p>
+    <div class="card__foot">
+      <Price product={product} size="md" />
+      <span class="card__cta">Ver detalles →</span>
+    </div>
+  </div>
+</a>
+
+<style>
+  .card {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 24px;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: 0 24px 50px -30px rgb(0 0 0 / 0.35);
+  }
+  .card__body {
+    display: grid;
+    gap: 8px;
+    justify-items: start;
+  }
+  .card__tags {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 30px;
+  }
+  .card h3 {
+    font-size: 1.3rem;
+    margin: 0;
+  }
+  .card__sum {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  .card__foot {
+    margin-top: 8px;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .card__cta {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .card--dark {
+    color: var(--on-dark);
+    border-color: color-mix(in srgb, var(--highlight) 25%, transparent);
+    background:
+      radial-gradient(360px 260px at 15% 50%, color-mix(in srgb, var(--glow) 55%, transparent), transparent 70%),
+      var(--pattern),
+      var(--dark);
+    background-size: auto, 400px, auto;
+  }
+  .card--dark:hover {
+    border-color: var(--highlight);
+  }
+  .card--dark .card__sum,
+  .card--dark :global(.price__was) {
+    color: color-mix(in srgb, var(--on-dark) 72%, transparent);
+  }
+  .card--dark .card__cta,
+  .card--dark .badge {
+    color: var(--highlight);
+  }
+  .card--dark .badge {
+    background: color-mix(in srgb, var(--highlight) 16%, transparent);
+  }
+
+  @media (max-width: 520px) {
+    .card {
+      grid-template-columns: 1fr;
+    }
+    .card__media {
+      max-width: 170px;
+    }
+  }
+</style>

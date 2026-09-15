@@ -1,0 +1,36 @@
+{
+  // Configuración de Cloudflare Workers.
+  // Cada tienda es un "environment" de este archivo: mismo código, distinta variable BRAND.
+  //   npm run deploy:sanacion   → Worker "sanacion-interior"
+  //   npm run deploy:guias      → Worker "guias-tus-examenes"
+  // Cada tienda tiene su propio bucket R2 (con el mismo nombre que su id) con los PDFs en la raíz.
+  // Todas comparten el KV de órdenes, porque Mercado Pago avisa de TODOS los pagos a una sola
+  // URL de webhook.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tienda-multimarca",
+  "main": "./dist/_worker.js/index.js",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": { "binding": "ASSETS", "directory": "./dist" },
+  "observability": { "enabled": true },
+
+  // Valores para desarrollo local (npm run dev / npm run preview).
+  "vars": { "BRAND": "sanacion-interior" },
+  "r2_buckets": [{ "binding": "PDFS", "bucket_name": "sanacion-interior" }],
+  "kv_namespaces": [{ "binding": "ORDERS", "id": "556a053fbdcb48aeb5d8e71102f626b0" }],
+
+  "env": {
+    "sanacion": {
+      "name": "sanacion-interior",
+      "vars": { "BRAND": "sanacion-interior" },
+      "r2_buckets": [{ "binding": "PDFS", "bucket_name": "sanacion-interior" }],
+      "kv_namespaces": [{ "binding": "ORDERS", "id": "556a053fbdcb48aeb5d8e71102f626b0" }]
+    },
+    "guias": {
+      "name": "guias-tus-examenes",
+      "vars": { "BRAND": "guias-tus-examenes" },
+      "r2_buckets": [{ "binding": "PDFS", "bucket_name": "guias-tus-examenes" }],
+      "kv_namespaces": [{ "binding": "ORDERS", "id": "556a053fbdcb48aeb5d8e71102f626b0" }]
+    }
+  }
+}

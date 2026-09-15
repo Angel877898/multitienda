@@ -1,0 +1,139 @@
+---
+// Regreso desde Mercado Pago. Si el pago está aprobado y pertenece a este
+// navegador (cookie de la orden), mostramos la descarga al instante.
+import BrandLayout from "@/layouts/BrandLayout.astro";
+import ProductCover from "@/components/ProductCover.astro";
+import Icon from "@/components/ui/Icon.astro";
+import { resolveBrand, siteUrl } from "@/lib/brand";
+import { getOrder, isPaid, isPending } from "@/lib/mercadopago";
+import { purchaseFromOrder, downloadUrl, DOWNLOAD_TTL_HOURS, type Purchase } from "@/lib/delivery";
+import { ORDER_COOKIE, loadOrder } from "@/lib/order";
+
+const brand = resolveBrand(Astro.request);
+// La cookie guarda el id de la orden que creó ESTE navegador en /api/checkout.
+const orderId = Astro.cookies.get(ORDER_COOKIE)?.value;
+
+type State = "approved" | "pending" | "unknown";
+let state: State = "unknown";
+let purchase: Purchase | null = null;
+let link: string | null = null;
+
+if (orderId) {
+  try {
+    const order = await getOrder(orderId);
+    if (order) {
+      purchase = purchaseFromOrder(order, (await loadOrder(Astro.locals.runtime.env, orderId))?.email);
+      if (isPaid(order) && purchase?.brand.id === brand.id) {
+        state = "approved";
+        link = await downloadUrl(siteUrl(Astro.request), purchase);
+      } else if (isPending(order)) {
+        state = "pending";
+      }
+    }
+  } catch (e) {
+    console.error("[gracias]", e);
+  }
+}
+---
+
+<BrandLayout brand={brand} title="¡Gracias por tu compra!" bare>
+  <section class="ty">
+    <div class="wrap wrap-narrow ty__in">
+      {
+        state === "approved" && purchase && link ? (
+          <>
+            <span class="ty__icon"><Icon name="check" size={34} /></span>
+            <h1>¡Pago confirmado!</h1>
+            <p class="ty__lede">
+              Ya puedes descargar <strong>{purchase.product.name}</strong>. También te enviamos el
+              enlace a <strong>{purchase.email}</strong>.
+            </p>
+            <div class="ty__cover">
+              <ProductCover brand={brand} product={purchase.product} variant="card" />
+            </div>
+            <a class="btn btn-cta btn-lg" href={link}>
+              <Icon name="download" size={20} /> Descargar mi PDF
+            </a>
+            <p class="muted ty__small">
+              El enlace es personal y caduca en {DOWNLOAD_TTL_HOURS} horas. Guarda el archivo en tu dispositivo.
+            </p>
+          </>
+        ) : state === "pending" ? (
+          <>
+            <span class="ty__icon ty__icon--wait"><Icon name="clock" size={34} /></span>
+            <h1>Tu pago está en proceso</h1>
+            <p class="ty__lede">
+              Si pagaste en OXXO o por transferencia, en cuanto Mercado Pago lo acredite te enviaremos
+              el PDF por correo automáticamente. Suele tardar de unos minutos a unas horas.
+            </p>
+          </>
+        ) : (
+          <>
+            <span class="ty__icon"><Icon name="check" size={34} /></span>
+            <h1>¡Gracias por tu compra!</h1>
+            <p class="ty__lede">
+              En unos minutos recibirás un correo de <strong>{brand.email.fromName}</strong> con el enlace
+              para descargar tu material. Revisa también spam o promociones.
+            </p>
+          </>
+        )
+      }
+      <p class="muted ty__small">
+        ¿Algún problema? Escríbenos a
+        <a href={`mailto:${brand.contact.supportEmail}`}>{brand.contact.supportEmail}</a> con el correo que
+        usaste al pagar.
+      </p>
+      <a class="btn btn-ghost" href="/">Volver a la tienda</a>
+    </div>
+  </section>
+</BrandLayout>
+
+<style>
+  .ty {
+    padding: clamp(56px, 9vw, 110px) 0;
+    background:
+      radial-gradient(700px 360px at 50% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent),
+      var(--bg);
+  }
+  .ty__in {
+    text-align: center;
+    display: grid;
+    justify-items: center;
+    gap: 18px;
+  }
+  .ty__icon {
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--on-accent);
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 14%, transparent);
+  }
+  .ty__icon--wait {
+    background: var(--highlight);
+    color: var(--dark);
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--highlight) 25%, transparent);
+  }
+  .ty h1 {
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    margin: 8px 0 0;
+  }
+  .ty__lede {
+    font-size: 1.12rem;
+    max-width: 54ch;
+    margin: 0;
+  }
+  .ty__cover {
+    width: 150px;
+    margin: 8px 0;
+  }
+  .ty__small {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+  .ty__small a {
+    color: var(--accent);
+  }
+</style>

@@ -1,0 +1,52 @@
+---
+// Frase destacada del material sobre fondo oscuro con el patrón de la marca.
+import type { Product } from "@/config/types";
+
+interface Props {
+  quote: NonNullable<Product["quote"]>;
+  emblem?: string;
+}
+const { quote, emblem } = Astro.props;
+---
+
+<section class="band">
+  <figure class="wrap wrap-narrow band__in reveal">
+    {emblem && <img src={emblem} alt="" width="56" height="56" />}
+    <blockquote>“{quote.text}”</blockquote>
+    {quote.source && <figcaption>{quote.source}</figcaption>}
+  </figure>
+</section>
+
+<style>
+  .band {
+    color: var(--on-dark);
+    background:
+      radial-gradient(600px 300px at 50% 0%, color-mix(in srgb, var(--glow) 45%, transparent), transparent 70%),
+      var(--pattern),
+      var(--dark);
+    background-size: auto, 400px, auto;
+    padding: clamp(56px, 8vw, 88px) 0;
+  }
+  .band__in {
+    margin: 0 auto;
+    text-align: center;
+    display: grid;
+    justify-items: center;
+    gap: 18px;
+  }
+  blockquote {
+    margin: 0;
+    font-family: var(--font-quote);
+    font-style: italic;
+    font-size: clamp(1.4rem, 3vw, 2.1rem);
+    line-height: 1.35;
+    text-wrap: balance;
+  }
+  figcaption {
+    color: var(--highlight);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+</style>

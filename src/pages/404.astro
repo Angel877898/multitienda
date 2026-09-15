@@ -1,0 +1,43 @@
+---
+import BrandLayout from "@/layouts/BrandLayout.astro";
+import { resolveBrand } from "@/lib/brand";
+
+const brand = resolveBrand(Astro.request);
+Astro.response.status = 404;
+---
+
+<BrandLayout brand={brand} title="Página no encontrada" bare>
+  <section class="nf wrap wrap-narrow">
+    <p class="eyebrow">Error 404</p>
+    <h1>No encontramos esta página</h1>
+    <p class="muted">Puede que el enlace haya cambiado. Estos son nuestros materiales disponibles:</p>
+    <ul>
+      {brand.products.map((p) => <li><a href={`/${p.slug}`}>{p.name}</a></li>)}
+    </ul>
+    <a class="btn btn-cta" href="/">Ir a la tienda</a>
+  </section>
+</BrandLayout>
+
+<style>
+  .nf {
+    padding: 90px 22px;
+    text-align: center;
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+  }
+  .nf h1 {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 20px;
+    display: grid;
+    gap: 8px;
+  }
+  a:not(.btn) {
+    color: var(--accent);
+    font-weight: 700;
+  }
+</style>

@@ -1,0 +1,73 @@
+---
+// Landing de venta de UN producto: dominio.com/<slug>
+import BrandLayout from "@/layouts/BrandLayout.astro";
+import ProductHero from "@/components/sales/ProductHero.astro";
+import PainSection from "@/components/sales/PainSection.astro";
+import BenefitsSection from "@/components/sales/BenefitsSection.astro";
+import ContentsSection from "@/components/sales/ContentsSection.astro";
+import AudienceSection from "@/components/sales/AudienceSection.astro";
+import TestimonialsSection from "@/components/sales/TestimonialsSection.astro";
+import PreviewSection from "@/components/sales/PreviewSection.astro";
+import QuoteBand from "@/components/sales/QuoteBand.astro";
+import OfferSection from "@/components/sales/OfferSection.astro";
+import FaqSection from "@/components/sales/FaqSection.astro";
+import FinalCta from "@/components/sales/FinalCta.astro";
+import StickyBuyBar from "@/components/sales/StickyBuyBar.astro";
+import BuyDialog from "@/components/sales/BuyDialog.astro";
+import { resolveBrand, findProductBySlug } from "@/lib/brand";
+
+const brand = resolveBrand(Astro.request);
+const product = findProductBySlug(brand, Astro.params.slug ?? "");
+if (!product) return Astro.rewrite("/404");
+
+const paymentFailed = Astro.url.searchParams.get("pago") === "fallido";
+const faq = [...(product.faq ?? []), ...brand.faq];
+---
+
+<BrandLayout
+  brand={brand}
+  theme={product.theme}
+  image={product.cover.image}
+  title={product.seo?.title ?? product.name}
+  description={product.seo?.description ?? product.summary}
+>
+  <a slot="header-action" href="#comprar" class="btn btn-cta head-cta" data-buy>Comprar</a>
+
+  {
+    paymentFailed && (
+      <div class="failed" role="status">
+        El pago no se completó y no se hizo ningún cargo. Puedes intentarlo de nuevo con otro método.
+      </div>
+    )
+  }
+
+  <ProductHero brand={brand} product={product} />
+  {product.pain && <PainSection pain={product.pain} />}
+  {product.quote && <QuoteBand quote={product.quote} emblem={product.emblem} />}
+  <BenefitsSection benefits={product.benefits} />
+  {product.contents && <ContentsSection brand={brand} product={product} contents={product.contents} />}
+  {product.previews?.length ? <PreviewSection previews={product.previews} /> : null}
+  {product.audience && <AudienceSection audience={product.audience} />}
+  {product.testimonials?.length ? <TestimonialsSection testimonials={product.testimonials} /> : null}
+  <OfferSection brand={brand} product={product} />
+  <FaqSection items={faq} />
+  <FinalCta brand={brand} product={product} />
+
+  <StickyBuyBar product={product} />
+  <BuyDialog product={product} />
+</BrandLayout>
+
+<style>
+  .head-cta {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+  }
+  .failed {
+    background: #fdecea;
+    color: #8a1c12;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 12px 20px;
+  }
+</style>

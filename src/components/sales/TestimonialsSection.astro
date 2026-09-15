@@ -1,0 +1,93 @@
+---
+import type { Product } from "@/config/types";
+import Icon from "@/components/ui/Icon.astro";
+
+interface Props {
+  testimonials: NonNullable<Product["testimonials"]>;
+}
+const { testimonials } = Astro.props;
+---
+
+<section class="section section--alt">
+  <div class="wrap">
+    <h2 class="section-title reveal">Lo que dicen quienes ya lo tienen</h2>
+    <div class="grid">
+      {
+        testimonials.map((t) => (
+          <figure class="quote reveal">
+            <div class="quote__stars" aria-hidden="true">
+              {Array.from({ length: 5 }, () => (
+                <Icon name="star" size={18} />
+              ))}
+            </div>
+            <blockquote>“{t.quote}”</blockquote>
+            <figcaption>
+              <span class="quote__avatar" aria-hidden="true">
+                {t.name.charAt(0)}
+              </span>
+              <span>
+                <strong>{t.name}</strong>
+                <small>{t.detail}</small>
+              </span>
+            </figcaption>
+          </figure>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid {
+    margin-top: 44px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+  }
+  .quote {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .quote__stars {
+    display: flex;
+    gap: 2px;
+    color: var(--highlight);
+  }
+  .quote__stars :global(svg) {
+    fill: currentColor;
+  }
+  blockquote {
+    margin: 0;
+    font-size: 1.04rem;
+    flex: 1;
+  }
+  figcaption {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .quote__avatar {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-weight: 700;
+  }
+  figcaption strong {
+    display: block;
+    font-size: 0.95rem;
+  }
+  figcaption small {
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+</style>

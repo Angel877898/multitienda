@@ -86,8 +86,8 @@ export const sanacionInterior: Brand = {
     supportEmail: "soporte@topcursosonline.com",
   },
   email: {
-    // Debe ser un dominio verificado en Resend.
-    from: "entregas@topcursosonline.com",
+    // Dominio verificado en Resend. Las respuestas van a contact.supportEmail.
+    from: "entregas@sanaciondeinterior.com",
     fromName: "Sanación Interior",
   },
 

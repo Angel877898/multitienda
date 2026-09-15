@@ -52,6 +52,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     await sendEmail({
       from: `${purchase.brand.email.fromName} <${purchase.brand.email.from}>`,
       to: purchase.email,
+      replyTo: purchase.brand.contact.supportEmail,
       subject: `Tu compra en ${purchase.brand.name}: ${purchase.product.name}`,
       html: deliveryHtml(purchase.brand, purchase.product.name, link),
     });

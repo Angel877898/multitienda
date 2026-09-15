@@ -50,6 +50,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
       await sendEmail({
         from: `${brand.email.fromName} <${brand.email.from}>`,
         to: email,
+        replyTo: brand.contact.supportEmail,
         subject: `[PRUEBA] Tu compra en ${brand.name}: ${product.name}`,
         html: deliveryHtml(brand, product.name, link),
         attachments: [{ filename: `${product.slug}.pdf`, path: link }],

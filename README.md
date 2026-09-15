@@ -114,7 +114,7 @@ Worker → **Settings → Domains & Routes → Add → Custom domain** → `sana
   URL `https://sanaciondeinterior.com/api/webhook`, evento **"Order (Mercado Pago)"**. Copia la
   clave secreta al secreto `MP_WEBHOOK_SECRET`. Esta única URL recibe los pagos de **todas** las
   tiendas.
-- **Resend** → *Domains* → verifica el dominio del remitente (`topcursosonline.com`) agregando los
+- **Resend** → *Domains* → verifica el dominio del remitente (`sanaciondeinterior.com`) agregando los
   registros DNS que te indica.
 
 ### 8. Probar

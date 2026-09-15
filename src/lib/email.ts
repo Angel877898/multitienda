@@ -7,10 +7,15 @@ interface SendArgs {
   to: string;
   subject: string;
   html: string;
+  /**
+   * Adjuntos por URL: Resend descarga el archivo desde `path` y lo adjunta.
+   * Así el Worker no tiene que leer ni codificar el PDF (ahorra CPU y memoria).
+   */
+  attachments?: { filename: string; path: string }[];
 }
 
 /** Envía un correo con Resend (https://resend.com). */
-export async function sendEmail({ from, to, subject, html }: SendArgs): Promise<void> {
+export async function sendEmail({ from, to, subject, html, attachments }: SendArgs): Promise<void> {
   if (!RESEND_API_KEY) throw new Error("Falta la variable de entorno RESEND_API_KEY");
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -18,7 +23,7 @@ export async function sendEmail({ from, to, subject, html }: SendArgs): Promise<
       Authorization: `Bearer ${RESEND_API_KEY}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ from, to, subject, html }),
+    body: JSON.stringify({ from, to, subject, html, attachments }),
   });
   if (!res.ok) {
     throw new Error(`Resend error ${res.status}: ${await res.text()}`);

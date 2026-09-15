@@ -5,7 +5,7 @@ const STARS = `${IMG}/stars.svg`;
 
 export const sanacionInterior: Brand = {
   id: "sanacion-interior",
-  domains: ["sanacioninterior.com", "www.sanacioninterior.com"],
+  domains: ["sanaciondeinterior.com", "www.sanaciondeinterior.com"],
   name: "Sanación Interior",
   tagline: "Energía · Emoción · Bienestar",
   logoMark: `${IMG}/mark.svg`,

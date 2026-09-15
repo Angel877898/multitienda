@@ -1,8 +1,10 @@
 import type { APIRoute } from "astro";
 import { resolveBrand, findProductById, siteUrl, isLocalUrl } from "@/lib/brand";
 import { createOrder } from "@/lib/mercadopago";
-import { orderReference } from "@/lib/delivery";
+import { orderReference, downloadUrl } from "@/lib/delivery";
 import { ORDER_COOKIE, saveOrder } from "@/lib/order";
+import { sendEmail, deliveryHtml } from "@/lib/email";
+import { TEST_DELIVERY_EMAILS } from "astro:env/server";
 
 export const prerender = false;
 
@@ -33,6 +35,34 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 
   const base = siteUrl(request);
   const local = isLocalUrl(base);
+
+  // ─── TEMPORAL: prueba del correo de entrega ─────────────────────────────────
+  // Si el correo escrito está en TEST_DELIVERY_EMAILS, se envía de inmediato
+  // (sin pagar) el correo de entrega con el PDF adjunto, y luego sigue el pago
+  // normal. Quita la variable TEST_DELIVERY_EMAILS cuando termines de probar.
+  const testEmails = (TEST_DELIVERY_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  if (testEmails.includes(email)) {
+    try {
+      const link = await downloadUrl(base, { brand, product, email });
+      await sendEmail({
+        from: `${brand.email.fromName} <${brand.email.from}>`,
+        to: email,
+        subject: `[PRUEBA] Tu compra en ${brand.name}: ${product.name}`,
+        html: deliveryHtml(brand, product.name, link),
+        attachments: [{ filename: `${product.slug}.pdf`, path: link }],
+      });
+      console.log("[checkout] correo de prueba enviado a", email);
+    } catch (e) {
+      console.error("[checkout] falló el correo de prueba", e);
+      const detail = e instanceof Error ? e.message : String(e);
+      return json({ error: `Prueba de correo falló: ${detail}` }, 502);
+    }
+  }
+  // ────────────────────────────────────────────────────────────────────────────
+
   const amount = product.price.toFixed(2);
   const reference = orderReference(brand);
 

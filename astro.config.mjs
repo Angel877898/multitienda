@@ -24,6 +24,9 @@ export default defineConfig({
       MP_WEBHOOK_SECRET: envField.string({ context: "server", access: "secret", optional: true }),
       DOWNLOAD_SECRET: envField.string({ context: "server", access: "secret", optional: true }),
       RESEND_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      // TEMPORAL: correos (separados por coma) que reciben el PDF adjunto al escribirlos,
+      // sin pagar, para probar el envío. Bórrala cuando termines.
+      TEST_DELIVERY_EMAILS: envField.string({ context: "server", access: "secret", optional: true }),
     },
   },
 });

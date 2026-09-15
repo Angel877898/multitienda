@@ -40,7 +40,7 @@ Por eso `private/**/*.pdf` está en `.gitignore`: los PDFs no se suben a GitHub.
 ### 1. Cuenta, dominio y Wrangler
 
 1. Crea tu cuenta en [dash.cloudflare.com](https://dash.cloudflare.com).
-2. **Agrega tu dominio** (`sanacioninterior.com`) en *Add a domain* y cambia los *nameservers* en
+2. **Agrega tu dominio** (`sanaciondeinterior.com`) en *Add a domain* y cambia los *nameservers* en
    tu registrador por los que te da Cloudflare. Espera a que diga **Active**.
 3. En tu computadora, dentro del proyecto:
    ```bash
@@ -105,13 +105,13 @@ Usa el **Access Token de producción** de Mercado Pago cuando vayas a vender de 
 
 ### 6. Dominio propio
 
-Worker → **Settings → Domains & Routes → Add → Custom domain** → `sanacioninterior.com` y
-`www.sanacioninterior.com`. Cloudflare crea el DNS y el certificado HTTPS.
+Worker → **Settings → Domains & Routes → Add → Custom domain** → `sanaciondeinterior.com` y
+`www.sanaciondeinterior.com`. Cloudflare crea el DNS y el certificado HTTPS.
 
 ### 7. Mercado Pago y Resend
 
 - **Mercado Pago** → tu aplicación → **Webhooks → Configurar notificaciones** (modo productivo):
-  URL `https://sanacioninterior.com/api/webhook`, evento **"Order (Mercado Pago)"**. Copia la
+  URL `https://sanaciondeinterior.com/api/webhook`, evento **"Order (Mercado Pago)"**. Copia la
   clave secreta al secreto `MP_WEBHOOK_SECRET`. Esta única URL recibe los pagos de **todas** las
   tiendas.
 - **Resend** → *Domains* → verifica el dominio del remitente (`topcursosonline.com`) agregando los

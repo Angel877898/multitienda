@@ -1,5 +1,6 @@
 ---
-// Barra de compra fija: aparece cuando el botón principal sale de pantalla.
+// Barra de compra fija: visible siempre que la caja de compra principal no esté en
+// pantalla (antes de llegar a ella en móvil, o después de pasarla).
 import type { Product } from "@/config/types";
 import Price from "@/components/ui/Price.astro";
 
@@ -21,15 +22,20 @@ const { product } = Astro.props;
 
 <script>
   const bar = document.getElementById("sticky-buy");
-  const anchor = document.getElementById("comprar");
+  // Se observa el botón principal (no toda la caja): si no se ve el botón, se muestra la barra.
+  const anchor = document.querySelector("#comprar [data-buy]") ?? document.getElementById("comprar");
   if (bar && anchor) {
     const button = bar.querySelector("button")!;
-    new IntersectionObserver(([entry]) => {
-      const show = !entry.isIntersecting && entry.boundingClientRect.top < 0;
-      bar.classList.toggle("is-on", show);
-      bar.setAttribute("aria-hidden", String(!show));
-      button.tabIndex = show ? 0 : -1;
-    }).observe(anchor);
+    new IntersectionObserver(
+      ([entry]) => {
+        // Se muestra si el botón no se ve completo (ej. cortado al fondo de la pantalla).
+        const show = entry.intersectionRatio < 1;
+        bar.classList.toggle("is-on", show);
+        bar.setAttribute("aria-hidden", String(!show));
+        button.tabIndex = show ? 0 : -1;
+      },
+      { threshold: [0, 1] }
+    ).observe(anchor);
   }
 </script>
 

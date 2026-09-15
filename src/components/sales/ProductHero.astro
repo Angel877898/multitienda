@@ -245,14 +245,54 @@ const dark = mergeTheme(brand.theme, product.theme).heroStyle === "dark";
   }
 
   @media (max-width: 880px) {
+    .hero {
+      padding-top: 20px;
+    }
     .hero__in {
       grid-template-columns: 1fr;
+      gap: 12px;
     }
     .hero__media {
       order: -1;
-      max-width: 230px;
+      max-width: 150px;
       margin: 0 auto;
       width: 100%;
+    }
+    .hero__media :global(.cover--hero) {
+      padding: 10px 8px 26px;
+    }
+    /* En móvil la caja de compra va justo después del titular. */
+    .hero__copy {
+      display: flex;
+      flex-direction: column;
+    }
+    .hero__tags {
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .hero__tags .badge,
+    .hero__emblem {
+      display: none;
+    }
+    :global(.hero__title) {
+      font-size: clamp(1.75rem, 7.4vw, 2.3rem);
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .hero__sub {
+      order: 3;
+      margin-top: 22px;
+      font-size: 1rem;
+    }
+    .hero__bullets {
+      order: 4;
+      margin-bottom: 0;
+    }
+    .hero__buy {
+      order: 2;
+      padding: 16px;
+      gap: 12px;
+      max-width: none;
     }
     .specs div {
       border-left: none;

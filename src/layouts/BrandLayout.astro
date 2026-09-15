@@ -172,6 +172,18 @@ const cssVars = `:root{${themeVars(t)}}`;
       .site-foot a {
         color: var(--on-dark);
       }
+      @media (max-width: 560px) {
+        .announce {
+          font-size: 0.74rem;
+          padding: 7px 12px;
+        }
+        .site-head__in {
+          height: 60px;
+        }
+        .site-head :global(.logo img) {
+          height: 34px;
+        }
+      }
       @media (max-width: 760px) {
         .site-foot__in {
           grid-template-columns: 1fr;

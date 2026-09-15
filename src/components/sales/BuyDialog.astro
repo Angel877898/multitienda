@@ -1,6 +1,8 @@
 ---
 // Ventana de compra: pide el correo y redirige a Mercado Pago.
-// Cualquier elemento con [data-buy] en la página la abre.
+// Cualquier elemento con [data-buy] en la página la abre, y también el enlace
+// directo dominio.com/<producto>#pagar (útil para anuncios).
+// En móvil se muestra como panel inferior ("bottom sheet") con scroll propio.
 import type { Product } from "@/config/types";
 import Price from "@/components/ui/Price.astro";
 import Icon from "@/components/ui/Icon.astro";
@@ -13,6 +15,7 @@ const { product } = Astro.props;
 
 <dialog id="buy-dialog" class="buy" aria-labelledby="buy-title" data-product-id={product.id}>
   <form class="buy__card" novalidate>
+    <span class="buy__grip" aria-hidden="true"></span>
     <button type="button" class="buy__x" data-close aria-label="Cerrar">✕</button>
 
     <p class="eyebrow">Estás a un paso</p>
@@ -26,6 +29,8 @@ const { product } = Astro.props;
         name="email"
         inputmode="email"
         autocomplete="email"
+        autocapitalize="off"
+        spellcheck="false"
         placeholder="tucorreo@ejemplo.com"
         required
       />
@@ -59,6 +64,25 @@ const { product } = Astro.props;
     const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
     const label = submit.querySelector<HTMLSpanElement>("[data-label]")!;
     const idleLabel = label.textContent;
+    // Navegadores antiguos (algunos Android/iOS) no soportan <dialog>.
+    const native = typeof dialog.showModal === "function";
+    const touch = window.matchMedia("(pointer: coarse)").matches;
+
+    const open = () => {
+      err.hidden = true;
+      if (native) dialog.showModal();
+      else dialog.setAttribute("open", "");
+      document.documentElement.classList.add("buy-open");
+      if (!native) document.documentElement.classList.add("buy-fallback");
+      // En celulares no abrimos el teclado de golpe: tapa el formulario.
+      if (!touch) input.focus();
+    };
+    const close = () => {
+      if (native) dialog.close();
+      else dialog.removeAttribute("open");
+      document.documentElement.classList.remove("buy-open", "buy-fallback");
+    };
+    dialog.addEventListener("close", () => document.documentElement.classList.remove("buy-open"));
 
     const showError = (msg: string) => {
       err.textContent = msg;
@@ -68,16 +92,23 @@ const { product } = Astro.props;
     document.querySelectorAll("[data-buy]").forEach((el) =>
       el.addEventListener("click", (e) => {
         e.preventDefault();
-        err.hidden = true;
-        dialog.showModal();
-        input.focus();
+        open();
       })
     );
-    dialog.querySelector("[data-close]")!.addEventListener("click", () => dialog.close());
-    // Cerrar al hacer clic fuera de la tarjeta.
+    dialog.querySelector("[data-close]")!.addEventListener("click", close);
+    // Cerrar al tocar fuera del panel.
     dialog.addEventListener("click", (e) => {
-      if (e.target === dialog) dialog.close();
+      if (e.target === dialog) close();
     });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && dialog.hasAttribute("open")) close();
+    });
+    // Que el campo quede visible cuando aparece el teclado.
+    input.addEventListener("focus", () => {
+      setTimeout(() => input.scrollIntoView({ block: "center", behavior: "smooth" }), 300);
+    });
+
+    if (location.hash === "#pagar") open();
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -112,22 +143,44 @@ const { product } = Astro.props;
   .buy {
     border: none;
     padding: 0;
+    margin: auto;
     background: transparent;
     width: min(460px, calc(100% - 28px));
+    max-width: 100%;
+    max-height: calc(100vh - 28px);
     max-height: calc(100dvh - 28px);
+    overflow: visible;
     color: var(--text);
   }
+  .buy:not([open]) {
+    display: none;
+  }
   .buy::backdrop {
-    background: rgb(10 10 20 / 0.55);
-    backdrop-filter: blur(3px);
+    background: rgb(10 10 20 / 0.6);
+  }
+  /* Respaldo para navegadores sin <dialog>: panel fijo con fondo oscuro. */
+  :global(html.buy-open) {
+    overflow: hidden;
+  }
+  :global(html.buy-fallback body)::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgb(10 10 20 / 0.6);
   }
   .buy[open] {
+    position: fixed;
+    inset: 0;
+    height: -webkit-fit-content;
+    height: fit-content;
+    z-index: 1000;
     animation: pop 0.22s ease-out;
   }
   @keyframes pop {
     from {
       opacity: 0;
-      transform: translateY(12px) scale(0.98);
+      transform: translateY(16px);
     }
   }
   .buy__card {
@@ -137,41 +190,57 @@ const { product } = Astro.props;
     padding: 30px 26px 24px;
     display: grid;
     gap: 14px;
+    max-height: inherit;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.5);
+  }
+  .buy__grip {
+    display: none;
   }
   .buy__x {
     position: absolute;
     top: 12px;
     right: 12px;
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     border: none;
     background: var(--surface-alt);
     color: var(--muted);
     cursor: pointer;
-    font-size: 0.95rem;
+    font-size: 1rem;
+  }
+  .buy .eyebrow {
+    margin: 0;
   }
   .buy__title {
-    font-size: 1.4rem;
+    font-size: 1.35rem;
     margin: 0;
-    padding-right: 30px;
+    padding-right: 40px;
+    line-height: 1.2;
   }
   .buy__field {
     display: grid;
     gap: 8px;
     font-weight: 700;
     font-size: 0.95rem;
-    margin-top: 6px;
+    margin-top: 4px;
   }
   .buy__field input {
+    width: 100%;
     font: inherit;
     font-weight: 400;
-    font-size: 1.05rem;
+    /* 16px o más evita que iOS haga zoom al escribir. */
+    font-size: max(16px, 1.05rem);
     padding: 15px 16px;
     border: 1.5px solid var(--line);
     border-radius: var(--radius-sm);
     background: var(--bg);
     color: var(--text);
+    -webkit-appearance: none;
+    appearance: none;
   }
   .buy__field input:focus {
     outline: none;
@@ -183,6 +252,11 @@ const { product } = Astro.props;
     color: #b42318;
     font-size: 0.9rem;
     font-weight: 600;
+  }
+  .buy .btn-block {
+    min-height: 56px;
+    padding: 14px 18px;
+    white-space: normal;
   }
   .buy__methods {
     list-style: none;
@@ -207,5 +281,45 @@ const { product } = Astro.props;
     font-size: 0.82rem;
     color: var(--muted);
     line-height: 1.5;
+  }
+
+  /* Móvil: panel que sube desde abajo, a todo el ancho. */
+  @media (max-width: 560px) {
+    .buy {
+      width: 100%;
+      max-height: 92vh;
+      max-height: 92dvh;
+      margin: auto 0 0;
+    }
+    .buy[open] {
+      inset: auto 0 0 0;
+    }
+    .buy__card {
+      border-radius: calc(var(--radius) + 4px) calc(var(--radius) + 4px) 0 0;
+      padding: 14px 20px calc(20px + env(safe-area-inset-bottom));
+      gap: 12px;
+    }
+    .buy__grip {
+      display: block;
+      justify-self: center;
+      width: 44px;
+      height: 5px;
+      border-radius: 999px;
+      background: var(--line);
+      margin-bottom: 4px;
+    }
+    .buy__x {
+      top: 16px;
+      right: 14px;
+    }
+    .buy__title {
+      font-size: 1.15rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .buy[open] {
+      animation: none;
+    }
   }
 </style>

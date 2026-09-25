@@ -44,7 +44,7 @@ export const sanacionInterior: Brand = {
     eyebrow: "Energía · Emoción · Bienestar",
     headline: "Herramientas para *sanar lo que sigues cargando*",
     subheadline:
-      "Cuadernos, cartas y guías en PDF para soltar, perdonar y volver a ti. Descárgalos al instante y úsalos a tu ritmo, en tu celular o impresos.",
+      "Cuadernos, cartas y guías para soltar, perdonar y volver a ti. Descárgalos al instante y úsalos a tu ritmo, en tu celular o impresos.",
   },
 
   // ⚠️ Confirma que ofreces esta política antes de publicar.
@@ -58,7 +58,7 @@ export const sanacionInterior: Brand = {
   faq: [
     {
       q: "¿Cómo recibo mi material?",
-      a: "En cuanto se confirma tu pago te aparece el botón de descarga y te enviamos el enlace a tu correo. Es un PDF que guardas para siempre.",
+      a: "En cuanto se confirma tu pago te aparece el botón de descarga y te enviamos el enlace a tu correo. ",
     },
     {
       q: "¿Cómo puedo pagar?",
@@ -446,7 +446,7 @@ export const sanacionInterior: Brand = {
       price: 99,
       currency: "MXN",
       file: "Las_heridas_que_marcaron_mi_historia_PDF.pdf",
-      badge: "Libro digital",
+      badge: "Libro",
       emblem: `${IMG}/emblems/heridas.svg`,
       theme: {
         heroStyle: "light",

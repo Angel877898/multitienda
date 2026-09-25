@@ -33,7 +33,7 @@ export const guiasTusExamenes: Brand = {
   home: {
     headline: "Estudia lo que *sí viene* en tu examen",
     subheadline:
-      "Guías en PDF con el temario explicado, reactivos tipo examen resueltos y simuladores para medir tu avance.",
+      "Guías con el temario explicado, reactivos tipo examen resueltos y simuladores para medir tu avance.",
   },
 
   // ⚠️ Confirma que ofreces esta política antes de publicar.
@@ -46,11 +46,11 @@ export const guiasTusExamenes: Brand = {
   faq: [
     {
       q: "¿Cómo recibo la guía?",
-      a: "Al confirmarse tu pago te aparece el botón de descarga y te llega un correo con el enlace. Es un PDF que puedes usar en celular, tablet, computadora o imprimir.",
+      a: "Al confirmarse tu pago te enviaremos un correo con el envio del libro.",
     },
     {
       q: "¿Qué formas de pago aceptan?",
-      a: "Tarjeta de crédito o débito, directamente en esta página. El pago es 100% seguro: lo procesa Stripe y tus datos de tarjeta nunca pasan por nuestros servidores.",
+      a: "Tarjeta de crédito o débito, directamente en esta página.",
     },
     {
       q: "¿Está actualizada?",
@@ -91,7 +91,6 @@ export const guiasTusExamenes: Brand = {
         footer: "Medicina · Odontología · Biología · Psicología",
       },
       specs: [
-        { label: "Formato", value: "PDF · 320 páginas" },
         { label: "Práctica", value: "1,200 reactivos + 4 simuladores" },
         { label: "Entrega", value: "Inmediata por correo" },
       ],
@@ -182,7 +181,6 @@ export const guiasTusExamenes: Brand = {
         footer: "Módulos básicos + simuladores",
       },
       specs: [
-        { label: "Formato", value: "PDF · 260 páginas" },
         { label: "Práctica", value: "800 reactivos + 3 simuladores" },
         { label: "Entrega", value: "Inmediata por correo" },
       ],

@@ -65,7 +65,7 @@ const MX_STATES = [
     <!-- Paso 1: datos del comprador -->
     <form class="buy__step" data-step="details" novalidate>
       <label class="buy__field">
-        <span>¿A qué correo te enviamos tu PDF?</span>
+        <span>Ingresa tu correo electronico</span>
         <input
           type="email"
           name="email"
@@ -194,8 +194,7 @@ const MX_STATES = [
 
     <p class="buy__note">
       <Icon name="lock" size={14} /> Pago con tarjeta de crédito o débito procesado de forma segura por
-      Stripe. Tus datos de tarjeta nunca pasan por nuestros servidores. Recibes tu PDF al instante y
-      también por correo.
+      Stripe. Tus datos de tarjeta nunca pasan por nuestros servidores.
     </p>
     </div>
   </div>
@@ -348,7 +347,7 @@ const MX_STATES = [
       e.preventDefault();
       const email = input.value.trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showError(detailsErr, "Revisa tu correo: ahí te enviaremos el PDF.");
+        showError(detailsErr, "Revisa tu correo");
         input.focus();
         return;
       }

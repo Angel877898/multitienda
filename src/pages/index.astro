@@ -25,7 +25,7 @@ const minPrice = Math.min(...brand.products.map((p) => p.price));
         <p class="home-hero__sub">{brand.home.subheadline}</p>
         <div class="home-hero__actions">
           <a class="btn btn-cta btn-lg" href="#coleccion">Ver la colección</a>
-          <span class="home-hero__from">Desde ${minPrice} MXN · PDF de descarga inmediata</span>
+          <span class="home-hero__from">Desde ${minPrice} MXN ·</span>
         </div>
         <ul class="home-hero__trust">
           <li><Icon name="download" size={18} /> Recíbelo al instante</li>
@@ -51,7 +51,7 @@ const minPrice = Math.min(...brand.products.map((p) => p.price));
       <p class="eyebrow center">La colección</p>
       <h2 class="section-title">Elige por dónde empezar</h2>
       <p class="section-lede">
-        Cada material es un PDF listo para descargar en cuanto se confirma tu pago. Todos a ${minPrice} MXN.
+        Cada material es un libro distinto. Todos a ${minPrice} MXN.
       </p>
       <div class="catalog">
         {brand.products.map((p) => <ProductCard brand={brand} product={p} />)}

@@ -34,6 +34,13 @@ const appearance = {
   },
 };
 const price = `${formatMoney(product.price, product.currency).replace(".00", "")} ${product.currency}`;
+const MX_STATES = [
+  "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas",
+  "Chihuahua", "Ciudad de México", "Coahuila", "Colima", "Durango", "Estado de México",
+  "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "Michoacán", "Morelos", "Nayarit",
+  "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí",
+  "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas",
+];
 ---
 
 <dialog
@@ -75,15 +82,73 @@ const price = `${formatMoney(product.price, product.currency).replace(".00", "")
         product.askAddress && (
           <>
             <label class="buy__field">
-              <span>Dirección</span>
-              <textarea
-                data-address
+              <span>Calle y número</span>
+              <input
+                type="text"
+                data-ship="street"
+                data-msg="tu calle y número"
                 required
-                rows="3"
-                autocomplete="street-address"
-                placeholder="Calle y número, colonia, código postal, ciudad y estado"
+                autocomplete="address-line1"
+                placeholder="Ej. Av. Juárez 123, int. 4"
               />
             </label>
+            <label class="buy__field">
+              <span>Colonia</span>
+              <input
+                type="text"
+                data-ship="colonia"
+                data-msg="tu colonia"
+                required
+                autocomplete="address-line2"
+                placeholder="Colonia o fraccionamiento"
+              />
+            </label>
+            <div class="buy__row">
+              <label class="buy__field">
+                <span>Código postal</span>
+                <input
+                  type="text"
+                  data-ship="cp"
+                  data-msg="tu código postal (5 dígitos)"
+                  required
+                  inputmode="numeric"
+                  maxlength="5"
+                  autocomplete="postal-code"
+                  placeholder="00000"
+                />
+              </label>
+              <label class="buy__field">
+                <span>Ciudad o municipio</span>
+                <input
+                  type="text"
+                  data-ship="city"
+                  data-msg="tu ciudad o municipio"
+                  required
+                  autocomplete="address-level2"
+                  placeholder="Ciudad"
+                />
+              </label>
+            </div>
+            <div class="buy__row">
+              <label class="buy__field">
+                <span>Estado</span>
+                <select data-ship="state" data-msg="tu estado" required autocomplete="address-level1">
+                  <option value="" selected disabled>Elige…</option>
+                  {MX_STATES.map((s) => <option value={s}>{s}</option>)}
+                </select>
+              </label>
+              <label class="buy__field">
+                <span>País</span>
+                <input
+                  type="text"
+                  data-ship="country"
+                  data-msg="tu país"
+                  required
+                  autocomplete="country-name"
+                  value="México"
+                />
+              </label>
+            </div>
             <label class="buy__field">
               <span>Nombre completo</span>
               <input
@@ -177,7 +242,8 @@ const price = `${formatMoney(product.price, product.currency).replace(".00", "")
     const details = dialog.querySelector<HTMLFormElement>('[data-step="details"]')!;
     const payStep = dialog.querySelector<HTMLDivElement>('[data-step="pay"]')!;
     const input = details.querySelector<HTMLInputElement>('input[name="email"]')!;
-    const address = details.querySelector<HTMLTextAreaElement>("textarea[data-address]");
+    // Inputs y el <select> de estado; se tipan como input porque solo usamos value, focus y dataset.
+    const shipFields = Array.from(details.querySelectorAll<HTMLInputElement>("[data-ship]"));
     const fullName = details.querySelector<HTMLInputElement>("input[data-fullname]");
     const detailsErr = details.querySelector<HTMLParagraphElement>(".buy__err")!;
     const detailsBtn = details.querySelector<HTMLButtonElement>('button[type="submit"]')!;
@@ -265,7 +331,7 @@ const price = `${formatMoney(product.price, product.currency).replace(".00", "")
       if (e.key === "Escape" && dialog.hasAttribute("open")) close();
     });
     // Al enfocar un campo (y aparecer el teclado), lo centra dentro del panel.
-    details.querySelectorAll<HTMLElement>("input, textarea").forEach((field) =>
+    details.querySelectorAll<HTMLElement>("input, textarea, select").forEach((field) =>
       field.addEventListener("focus", () => {
         setTimeout(() => field.scrollIntoView({ block: "center", behavior: "smooth" }), 320);
       })
@@ -286,10 +352,17 @@ const price = `${formatMoney(product.price, product.currency).replace(".00", "")
         input.focus();
         return;
       }
-      if (address && address.value.trim().length < 10) {
-        showError(detailsErr, "Escribe tu dirección completa.");
-        address.focus();
-        return;
+      // Dirección de envío (solo en productos con askAddress).
+      for (const field of shipFields) {
+        const value = field.value.trim();
+        const invalid =
+          field.dataset.ship === "cp" ? !/^\d{5}$/.test(value) : value.length < 2;
+        if (invalid) {
+          const verb = field.tagName === "SELECT" ? "Elige" : "Escribe";
+          showError(detailsErr, `${verb} ${field.dataset.msg}.`);
+          field.focus();
+          return;
+        }
       }
       if (fullName && fullName.value.trim().length < 3) {
         showError(detailsErr, "Escribe tu nombre completo.");
@@ -483,8 +556,10 @@ const price = `${formatMoney(product.price, product.currency).replace(".00", "")
     margin-top: 4px;
   }
   .buy__field input,
-  .buy__field textarea {
+  .buy__field textarea,
+  .buy__field select {
     width: 100%;
+    min-width: 0;
     font: inherit;
     font-weight: 400;
     /* 16px o más evita que iOS haga zoom al escribir. */
@@ -497,13 +572,29 @@ const price = `${formatMoney(product.price, product.currency).replace(".00", "")
     -webkit-appearance: none;
     appearance: none;
   }
+  .buy__field select {
+    padding-right: 38px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23888' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m1 1.5 5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+  }
+  .buy__field select:invalid {
+    color: var(--muted);
+  }
   .buy__field textarea {
     resize: vertical;
     min-height: 84px;
     line-height: 1.4;
   }
+  /* Dos campos por fila (código postal + ciudad, estado + país). */
+  .buy__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
   .buy__field input:focus,
-  .buy__field textarea:focus {
+  .buy__field textarea:focus,
+  .buy__field select:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent);

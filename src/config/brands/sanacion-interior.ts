@@ -120,7 +120,6 @@ export const sanacionInterior: Brand = {
         title: "Reset de 21 días",
       },
       specs: [
-        { label: "Formato", value: "PDF interactivo y rellenable" },
         { label: "Extensión", value: "62 páginas" },
         { label: "Ritmo", value: "10 a 20 minutos al día" },
       ],
@@ -214,11 +213,11 @@ export const sanacionInterior: Brand = {
       slug: "cartas-de-perdon",
       name: "Cartas de Perdón · 30 cartas guiadas",
       summary:
-        "Cuadernillo imprimible y rellenable con 30 cartas guiadas para decir, por fin, lo que nunca dijiste.",
+        "Cuadernillo",
       price: 99,
       currency: "MXN",
       file: "Cartas-de-Perdon_1.pdf",
-      badge: "Cuadernillo imprimible",
+      badge: "Cuadernillo",
       emblem: `${IMG}/emblems/cartas.svg`,
       theme: {
         accent: "#7A2C73",
@@ -233,11 +232,10 @@ export const sanacionInterior: Brand = {
       cover: {
         image: `${IMG}/products/cartas-de-perdon/cover.webp`,
         ratio: "1000 / 1294",
-        kicker: "Cuadernillo imprimible",
+        kicker: "Cuadernillo",
         title: "Cartas de Perdón",
       },
       specs: [
-        { label: "Formato", value: "PDF imprimible y rellenable" },
         { label: "Extensión", value: "102 páginas" },
         { label: "Contenido", value: "30 cartas en 4 secciones" },
       ],
@@ -331,7 +329,7 @@ export const sanacionInterior: Brand = {
       price: 99,
       currency: "MXN",
       file: "1013594980-Runes-ES.pdf",
-      badge: "Guía ilustrada a color",
+      badge: "Cuadernillo",
       emblem: `${IMG}/emblems/runas.svg`,
       theme: {
         accent: "#7A5230",
@@ -355,7 +353,6 @@ export const sanacionInterior: Brand = {
         title: "Runas Prohibidas",
       },
       specs: [
-        { label: "Formato", value: "PDF ilustrado a color" },
         { label: "Extensión", value: "80 páginas" },
         { label: "Contenido", value: "15 áreas de bienestar" },
       ],
@@ -445,7 +442,7 @@ export const sanacionInterior: Brand = {
       askAddress: true,
       name: "Las heridas que marcaron mi historia",
       summary:
-        "Libro digital para comprender tu pasado —la infancia, mamá, papá y las cinco heridas— y elegir un presente más libre.",
+        "Libro para comprender tu pasado —la infancia, mamá, papá y las cinco heridas— y elegir un presente más libre.",
       price: 99,
       currency: "MXN",
       file: "Las_heridas_que_marcaron_mi_historia_PDF.pdf",
@@ -473,7 +470,7 @@ export const sanacionInterior: Brand = {
         title: "Las heridas que marcaron mi historia",
       },
       specs: [
-        { label: "Formato", value: "Libro digital (PDF)" },
+        { label: "Formato", value: "Libro" },
         { label: "Extensión", value: "118 páginas · 8 capítulos" },
         { label: "Autora", value: "Normacaminoemocional" },
       ],

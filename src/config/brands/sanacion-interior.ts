@@ -57,16 +57,8 @@ export const sanacionInterior: Brand = {
 
   faq: [
     {
-      q: "¿Cómo recibo mi material?",
-      a: "En cuanto se confirma tu pago te aparece el botón de descarga y te enviamos el enlace a tu correo. ",
-    },
-    {
       q: "¿Cómo puedo pagar?",
       a: "Con tarjeta de crédito o débito (Visa, Mastercard o American Express), directamente en esta página. El pago lo procesa Stripe de forma segura: tus datos de tarjeta nunca pasan por nuestros servidores.",
-    },
-    {
-      q: "¿Lo puedo usar en el celular o imprimir?",
-      a: "Las dos cosas. Puedes leerlo o llenarlo en tu celular, tablet o computadora, o imprimirlo las veces que quieras para ti.",
     },
     {
       q: "¿Puedo compartirlo?",

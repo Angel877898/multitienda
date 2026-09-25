@@ -11,7 +11,7 @@ export const sanacionInterior: Brand = {
   logoMark: `${IMG}/mark.svg`,
   logoWords: ["Sanación", "Interior"],
   heroArt: `${IMG}/flower.svg`,
-  announcement: "Toda la colección a $99 MXN · Descarga inmediata en tu correo",
+  announcement: "Sanacion Interior",
 
   // Branding: noche morada con estrellas y oro (del logo y las portadas).
   theme: {

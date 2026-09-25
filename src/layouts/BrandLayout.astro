@@ -76,7 +76,7 @@ const cssVars = `:root{${themeVars(t)}}`;
             Soporte: <a href={`mailto:${brand.contact.supportEmail}`}>{brand.contact.supportEmail}</a>
             {brand.contact.whatsapp && <> · WhatsApp {brand.contact.whatsapp}</>}
           </p>
-          <p>Pagos procesados de forma segura por Mercado Pago.</p>
+          <p>Pagos con tarjeta procesados de forma segura por Stripe.</p>
           {brand.legalNote && <p class="site-foot__legal">{brand.legalNote}</p>}
           <p>© {new Date().getFullYear()} {brand.name}</p>
         </div>

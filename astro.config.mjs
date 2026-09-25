@@ -19,14 +19,13 @@ export default defineConfig({
     schema: {
       // ⭐ Tienda que sirve este despliegue (id de src/config/brands/).
       BRAND: envField.string({ context: "server", access: "secret", optional: true }),
-      // Access token de la ÚNICA cuenta de Mercado Pago que cobra todas las marcas.
-      MP_ACCESS_TOKEN: envField.string({ context: "server", access: "secret", optional: true }),
-      MP_WEBHOOK_SECRET: envField.string({ context: "server", access: "secret", optional: true }),
+      // Stripe: UNA sola cuenta cobra todas las tiendas.
+      // Clave secreta (sk_…), clave publicable (pk_…) y secreto del webhook (whsec_…).
+      STRIPE_SECRET_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      STRIPE_PUBLISHABLE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      STRIPE_WEBHOOK_SECRET: envField.string({ context: "server", access: "secret", optional: true }),
       DOWNLOAD_SECRET: envField.string({ context: "server", access: "secret", optional: true }),
       RESEND_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
-      // TEMPORAL: correos (separados por coma) que reciben el PDF adjunto al escribirlos,
-      // sin pagar, para probar el envío. Bórrala cuando termines.
-      TEST_DELIVERY_EMAILS: envField.string({ context: "server", access: "secret", optional: true }),
     },
   },
 });

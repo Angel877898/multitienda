@@ -1,7 +1,7 @@
 import { DOWNLOAD_SECRET } from "astro:env/server";
 import type { Brand, Product } from "@/config/types";
 import { getBrandById, findProductById } from "@/lib/brand";
-import type { MpOrder } from "@/lib/mercadopago";
+import { sessionEmail, type CheckoutSession } from "@/lib/stripe";
 import { signDownloadToken } from "@/lib/tokens";
 
 export const DOWNLOAD_TTL_HOURS = 72;
@@ -12,26 +12,12 @@ export interface Purchase {
   email: string;
 }
 
-/**
- * external_reference de la orden: "<brandId>_<uuid sin guiones>".
- * Mercado Pago solo acepta letras, números, "-" y "_" (máx. 64 caracteres),
- * por eso los ids de marca no deben llevar "_".
- */
-export function orderReference(brand: Brand): string {
-  return `${brand.id}_${crypto.randomUUID().replace(/-/g, "")}`;
-}
-
-/**
- * Obtiene marca, producto y correo a partir de una orden de Mercado Pago.
- * El correo viene de nuestro registro (data/orders), porque la API de
- * Orders no lo devuelve.
- */
-export function purchaseFromOrder(order: MpOrder, email?: string): Purchase | null {
-  const brandId = (order.external_reference || "").split("_")[0];
-  const brand = getBrandById(brandId);
-  const productId = order.items?.[0]?.external_code;
+/** Obtiene marca, producto y correo a partir de una Checkout Session de Stripe. */
+export function purchaseFromSession(session: CheckoutSession): Purchase | null {
+  const brand = getBrandById(session.metadata?.brand_id ?? "");
+  const productId = session.metadata?.product_id;
   const product = brand && productId ? findProductById(brand, productId) : undefined;
-  email = (email || order.payer?.email || "").toLowerCase();
+  const email = sessionEmail(session);
   if (!brand || !product || !email) return null;
   return { brand, product, email };
 }

@@ -61,8 +61,8 @@ export const sanacionInterior: Brand = {
       a: "En cuanto se confirma tu pago te aparece el botón de descarga y te enviamos el enlace a tu correo. Es un PDF que guardas para siempre.",
     },
     {
-      q: "¿Puedo pagar en OXXO o con transferencia?",
-      a: "Sí. El pago se procesa con Mercado Pago: tarjeta de crédito o débito, saldo de Mercado Pago, OXXO o transferencia SPEI. Con OXXO el PDF llega cuando se acredita el pago.",
+      q: "¿Cómo puedo pagar?",
+      a: "Con tarjeta de crédito o débito (Visa, Mastercard o American Express), directamente en esta página. El pago lo procesa Stripe de forma segura: tus datos de tarjeta nunca pasan por nuestros servidores.",
     },
     {
       q: "¿Lo puedo usar en el celular o imprimir?",
@@ -442,6 +442,7 @@ export const sanacionInterior: Brand = {
     {
       id: "las-heridas-que-marcaron-mi-historia",
       slug: "heridas-que-marcaron-mi-historia",
+      askAddress: true,
       name: "Las heridas que marcaron mi historia",
       summary:
         "Libro digital para comprender tu pasado —la infancia, mamá, papá y las cinco heridas— y elegir un presente más libre.",

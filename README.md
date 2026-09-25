@@ -1,9 +1,10 @@
-# Tienda multimarca (Astro + Cloudflare) · venta de PDFs con Mercado Pago
+# Tienda multimarca (Astro + Cloudflare) · venta de PDFs con Stripe
 
 Un solo repositorio para **varias tiendas**, cada una con su dominio, logo, colores, tipografía y
 catálogo. Cada producto tiene su propia **landing de venta** (`dominio.com/<slug>`) y todas las
-tiendas cobran en **una sola cuenta de Mercado Pago** (Checkout Pro vía Orders API). Al pagarse, el
-comprador descarga el PDF al instante y además lo recibe por correo.
+tiendas cobran en **una sola cuenta de Stripe** con el pago **incrustado en la página** (Payment
+Element): el cliente nunca sale de tu sitio. Al pagarse, descarga el PDF al instante y además lo
+recibe por correo.
 
 Tiendas incluidas: **Sanación Interior** y **Guías Tus Exámenes**.
 
@@ -95,31 +96,34 @@ La variable `BRAND` **no** se configura en el dashboard: ya va en `wrangler.json
 En el Worker → **Settings → Variables and Secrets → Add** (tipo *Secret*), o por terminal:
 
 ```bash
-npx wrangler secret put MP_ACCESS_TOKEN   --env sanacion
-npx wrangler secret put DOWNLOAD_SECRET   --env sanacion
-npx wrangler secret put RESEND_API_KEY    --env sanacion
-npx wrangler secret put MP_WEBHOOK_SECRET --env sanacion
+npx wrangler secret put STRIPE_SECRET_KEY      --env sanacion
+npx wrangler secret put STRIPE_PUBLISHABLE_KEY --env sanacion
+npx wrangler secret put STRIPE_WEBHOOK_SECRET  --env sanacion
+npx wrangler secret put DOWNLOAD_SECRET        --env sanacion
+npx wrangler secret put RESEND_API_KEY         --env sanacion
 ```
 
-Usa el **Access Token de producción** de Mercado Pago cuando vayas a vender de verdad.
+Para vender de verdad usa las llaves **live** de Stripe (`sk_live_…` / `pk_live_…`).
 
 ### 6. Dominio propio
 
 Worker → **Settings → Domains & Routes → Add → Custom domain** → `sanaciondeinterior.com` y
 `www.sanaciondeinterior.com`. Cloudflare crea el DNS y el certificado HTTPS.
 
-### 7. Mercado Pago y Resend
+### 7. Stripe y Resend
 
-- **Mercado Pago** → tu aplicación → **Webhooks → Configurar notificaciones** (modo productivo):
-  URL `https://sanaciondeinterior.com/api/webhook`, evento **"Order (Mercado Pago)"**. Copia la
-  clave secreta al secreto `MP_WEBHOOK_SECRET`. Esta única URL recibe los pagos de **todas** las
-  tiendas.
+- **Stripe** → **Desarrolladores → Webhooks → Agregar destino**: URL
+  `https://sanaciondeinterior.com/api/webhook` con los eventos **`checkout.session.completed`** y
+  **`checkout.session.async_payment_succeeded`**. Copia el *Signing secret* (`whsec_…`) al secreto
+  `STRIPE_WEBHOOK_SECRET`. Esta única URL recibe los pagos de **todas** las tiendas.
+- **Stripe** → **Configuración → Métodos de pago**: deja activas las tarjetas y apaga los métodos
+  que no quieras mostrar.
 - **Resend** → *Domains* → verifica el dominio del remitente (`sanaciondeinterior.com`) agregando los
   registros DNS que te indica.
 
 ### 8. Probar
 
-Abre el dominio, compra con Mercado Pago y confirma que ves la descarga en `/gracias` y que llega
+Abre el dominio, compra con una tarjeta y confirma que ves la descarga en `/gracias` y que llega
 el correo. Los errores se ven en el Worker → **Observability → Logs**.
 
 ---
@@ -131,9 +135,9 @@ Ya está preparada en `wrangler.jsonc` (`env.guias`). Solo repite, para esa tien
 1. Bucket R2 `guias-tus-examenes` con sus PDFs: `npx wrangler r2 bucket create guias-tus-examenes` y `npm run pdfs:remote -- guias-tus-examenes`
 2. Otro Worker desde el mismo repositorio: nombre `guias-tus-examenes`, deploy command
    `npx wrangler deploy --env guias`.
-3. Los mismos secretos con `--env guias`. **`DOWNLOAD_SECRET` y `MP_ACCESS_TOKEN` deben ser iguales**
+3. Los mismos secretos con `--env guias`. **`DOWNLOAD_SECRET` y las llaves de Stripe deben ser iguales**
    en todas las tiendas.
-4. Su dominio propio. El webhook de Mercado Pago **no** se toca.
+4. Su dominio propio. El webhook de Stripe **no** se toca.
 
 Para una tienda nueva: crea su archivo en `src/config/brands/`, sus PDFs en `private/<id>/` y un
 bloque `env.<tienda>` en `wrangler.jsonc` copiando uno existente y cambiando `name`, `BRAND` y `bucket_name`.
@@ -145,8 +149,9 @@ bloque `env.<tienda>` en `wrangler.jsonc` copiando uno existente y cambiando `na
 | Nombre | Dónde | Para qué |
 |---|---|---|
 | `BRAND` | `wrangler.jsonc` / `.env` | Tienda que sirve este Worker. |
-| `MP_ACCESS_TOKEN` | secreto | **Access Token** de Mercado Pago (no la Public Key). |
-| `MP_WEBHOOK_SECRET` | secreto | Valida la firma del webhook (recomendado). |
+| `STRIPE_SECRET_KEY` | secreto | Llave secreta de Stripe (`sk_…`). |
+| `STRIPE_PUBLISHABLE_KEY` | secreto | Llave publicable de Stripe (`pk_…`); se usa en el navegador. |
+| `STRIPE_WEBHOOK_SECRET` | secreto | Valida la firma del webhook (`whsec_…`). |
 | `DOWNLOAD_SECRET` | secreto | Firma los enlaces de descarga. Igual en todas las tiendas. |
 | `RESEND_API_KEY` | secreto | Envío del correo de entrega con [Resend](https://resend.com). |
 | `PDFS` | binding R2 | Bucket de la tienda (`sanacion-interior`), PDFs en la raíz. |
@@ -167,13 +172,13 @@ src/
   pages/
     index.astro             home de la tienda (portadas + colección)
     [slug].astro            landing de venta de un producto
-    gracias.astro           regreso de Mercado Pago: descarga inmediata si está pagado
+    gracias.astro           tras pagar: descarga inmediata si está pagado
     api/
-      checkout.ts           crea la orden en Mercado Pago y la guarda en KV
-      webhook.ts            recibe el aviso de pago y envía el PDF por correo
+      checkout.ts           crea la sesión de pago de Stripe y la guarda en KV
+      webhook.ts            aviso de Stripe: verifica la firma y envía el PDF por correo
       download.ts           sirve el PDF desde R2 con enlace firmado y temporal
   components/sales/         secciones de venta (hero, beneficios, galería, oferta, FAQ…)
-  lib/                      brand, theme, mercadopago, order, delivery, email, tokens, money
+  lib/                      brand, theme, stripe, fulfill, order, delivery, email, tokens, money
 public/brands/<id>/         logo, emblemas, portadas y páginas de muestra (públicos)
 private/<id>/*.pdf          PDFs originales (se suben a R2; no van a GitHub)
 scripts/upload-pdfs.mjs     sube private/ a R2
@@ -199,17 +204,21 @@ Después sube su PDF: `npm run pdfs:remote -- <id-de-la-tienda>`.
 
 ## Cómo funciona el pago
 
-1. El comprador escribe su correo y `POST /api/checkout` crea una **orden** en Mercado Pago con el
-   precio del servidor, la guarda en KV y lo redirige a pagar (tarjeta, saldo MP, OXXO o SPEI).
-2. Al regresar a `/gracias`, si la orden ya está pagada ve el botón de descarga.
-3. Mercado Pago avisa a `POST /api/webhook`; se consulta la orden real y, si está pagada, se envía
-   el correo con un enlace firmado que caduca en 72 h.
+1. El comprador escribe su correo y `POST /api/checkout` crea una **Checkout Session** de Stripe
+   (`ui_mode: elements`) con el precio del servidor y la guarda en KV.
+2. En la misma ventana aparece el **formulario de tarjeta de Stripe** (Payment Element). Si el banco
+   pide verificación (3D Secure), sale encima de la página. Nadie sale de tu sitio.
+3. Al aprobarse pasa a `/gracias?session_id=…`: ve el botón de descarga y se le envía el correo.
+4. Stripe también avisa a `POST /api/webhook` (firma verificada): si el correo aún no salió, se envía
+   ahí. Cada compra se entrega una sola vez.
 
 ### Probar en modo prueba
 
-- El correo en la ventana de compra debe terminar en **`@testuser.com`**.
-- Paga con tu **cuenta compradora de prueba** y una tarjeta de prueba (titular `APRO`).
-- En local Mercado Pago no puede llamar al webhook: abre `/gracias` a mano.
+- Usa tus llaves de prueba (`sk_test_` / `pk_test_`).
+- Tarjeta aprobada: `4242 4242 4242 4242`, cualquier fecha futura y cualquier CVC. Con verificación
+  del banco: `4000 0025 0000 3155`. Rechazada: `4000 0000 0000 9995`.
+- Webhook en local: `stripe listen --forward-to localhost:4321/api/webhook` y copia el `whsec_…` que
+  imprime a tu `.env`.
 
 ---
 

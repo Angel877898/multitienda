@@ -1,32 +1,39 @@
 ---
-// Regreso desde Mercado Pago. Si el pago está aprobado y pertenece a este
-// navegador (cookie de la orden), mostramos la descarga al instante.
+// Página tras el pago con Stripe. Llega con ?session_id=cs_… (o usa la cookie
+// de la sesión creada en este navegador). Si ya está pagada, entrega la compra
+// (correo, una sola vez) y muestra el botón de descarga al instante.
 import BrandLayout from "@/layouts/BrandLayout.astro";
 import ProductCover from "@/components/ProductCover.astro";
 import Icon from "@/components/ui/Icon.astro";
 import { resolveBrand, siteUrl } from "@/lib/brand";
-import { getOrder, isPaid, isPending } from "@/lib/mercadopago";
-import { purchaseFromOrder, downloadUrl, DOWNLOAD_TTL_HOURS, type Purchase } from "@/lib/delivery";
-import { ORDER_COOKIE, loadOrder } from "@/lib/order";
+import { getCheckoutSession } from "@/lib/stripe";
+import { purchaseFromSession, downloadUrl, DOWNLOAD_TTL_HOURS, type Purchase } from "@/lib/delivery";
+import { fulfill } from "@/lib/fulfill";
+import { ORDER_COOKIE } from "@/lib/order";
 
 const brand = resolveBrand(Astro.request);
-// La cookie guarda el id de la orden que creó ESTE navegador en /api/checkout.
-const orderId = Astro.cookies.get(ORDER_COOKIE)?.value;
+const sessionId =
+  Astro.url.searchParams.get("session_id") || Astro.cookies.get(ORDER_COOKIE)?.value || "";
 
 type State = "approved" | "pending" | "unknown";
 let state: State = "unknown";
 let purchase: Purchase | null = null;
 let link: string | null = null;
 
-if (orderId) {
+if (sessionId) {
   try {
-    const order = await getOrder(orderId);
-    if (order) {
-      purchase = purchaseFromOrder(order, (await loadOrder(Astro.locals.runtime.env, orderId))?.email);
-      if (isPaid(order) && purchase?.brand.id === brand.id) {
+    const session = await getCheckoutSession(sessionId);
+    if (session) {
+      purchase = purchaseFromSession(session);
+      if (session.payment_status === "paid" && purchase?.brand.id === brand.id) {
         state = "approved";
         link = await downloadUrl(siteUrl(Astro.request), purchase);
-      } else if (isPending(order)) {
+        // Entrega también desde aquí por si el webhook tarda (no duplica envíos).
+        await fulfill(Astro.locals.runtime.env, session).catch((e) =>
+          console.error("[gracias] no se pudo enviar el correo", e)
+        );
+      } else if (session.status === "complete") {
+        // Completó el pago pero aún no se acredita (métodos con pago diferido).
         state = "pending";
       }
     }
@@ -63,8 +70,8 @@ if (orderId) {
             <span class="ty__icon ty__icon--wait"><Icon name="clock" size={34} /></span>
             <h1>Tu pago está en proceso</h1>
             <p class="ty__lede">
-              Si pagaste en OXXO o por transferencia, en cuanto Mercado Pago lo acredite te enviaremos
-              el PDF por correo automáticamente. Suele tardar de unos minutos a unas horas.
+              En cuanto se confirme tu pago te enviaremos el PDF por correo automáticamente. Suele
+              tardar de unos minutos a unas horas.
             </p>
           </>
         ) : (

@@ -60,6 +60,8 @@ export interface Product {
   file: string;
   /** Producto principal de la home. */
   featured?: boolean;
+  /** Muestra un campo de dirección en la ventana de compra (por ahora no se envía ni se guarda). */
+  askAddress?: boolean;
   /** Etiqueta corta sobre el título, ej. "Más vendido". */
   badge?: string;
   /** Colores propios del producto (se mezclan con los de la marca). */

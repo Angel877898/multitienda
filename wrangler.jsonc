@@ -15,15 +15,14 @@
   "observability": { "enabled": true },
 
   // Valores para desarrollo local (npm run dev / npm run preview).
-  "vars": { "BRAND": "sanacion-interior", "TEST_DELIVERY_EMAILS": "angel877898@gmail.com" },
+  "vars": { "BRAND": "sanacion-interior" },
   "r2_buckets": [{ "binding": "PDFS", "bucket_name": "sanacion-interior" }],
   "kv_namespaces": [{ "binding": "ORDERS", "id": "556a053fbdcb48aeb5d8e71102f626b0" }],
 
   "env": {
     "sanacion": {
       "name": "sanacion-interior",
-      // TEMPORAL: TEST_DELIVERY_EMAILS envía el PDF sin pagar a estos correos. Bórralo al terminar.
-      "vars": { "BRAND": "sanacion-interior", "TEST_DELIVERY_EMAILS": "angel877898@gmail.com" },
+      "vars": { "BRAND": "sanacion-interior" },
       "r2_buckets": [{ "binding": "PDFS", "bucket_name": "sanacion-interior" }],
       "kv_namespaces": [{ "binding": "ORDERS", "id": "556a053fbdcb48aeb5d8e71102f626b0" }]
     },

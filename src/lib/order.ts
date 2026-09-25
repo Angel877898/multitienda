@@ -1,12 +1,13 @@
 // Registro de órdenes en Cloudflare Workers KV (binding ORDERS).
-// Mercado Pago no devuelve el correo que el comprador escribió en nuestra
-// ventana de compra, así que lo guardamos aquí al crear la orden. También
-// marca las órdenes ya entregadas para no enviar el PDF dos veces.
+// Cada orden es una Checkout Session de Stripe. Aquí marcamos las ya
+// entregadas para no enviar el PDF dos veces (el webhook y la página de
+// gracias pueden intentar entregar la misma orden).
 
-/** Cookie con el id de la orden de Mercado Pago creada por este navegador. */
+/** Cookie con el id de la Checkout Session creada por este navegador. */
 export const ORDER_COOKIE = "order_ref";
 
 export interface OrderRecord {
+  /** Id de la Checkout Session de Stripe (cs_…). */
   orderId: string;
   brandId: string;
   productId: string;
@@ -16,13 +17,14 @@ export interface OrderRecord {
 }
 
 const key = (orderId: string) => `order:${orderId}`;
+const VALID_ID = /^[A-Za-z0-9_]+$/;
 
 export async function saveOrder(env: Env, record: OrderRecord): Promise<void> {
   await env.ORDERS.put(key(record.orderId), JSON.stringify(record));
 }
 
 export async function loadOrder(env: Env, orderId: string): Promise<OrderRecord | null> {
-  if (!/^[A-Za-z0-9]+$/.test(orderId)) return null;
+  if (!VALID_ID.test(orderId)) return null;
   return env.ORDERS.get<OrderRecord>(key(orderId), "json");
 }
 

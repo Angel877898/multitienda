@@ -50,7 +50,7 @@ export const guiasTusExamenes: Brand = {
     },
     {
       q: "¿Qué formas de pago aceptan?",
-      a: "Tarjeta de crédito o débito, OXXO, transferencia SPEI y saldo de Mercado Pago. El pago es 100% seguro a través de Mercado Pago.",
+      a: "Tarjeta de crédito o débito, directamente en esta página. El pago es 100% seguro: lo procesa Stripe y tus datos de tarjeta nunca pasan por nuestros servidores.",
     },
     {
       q: "¿Está actualizada?",

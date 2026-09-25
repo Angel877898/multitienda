@@ -1,81 +1,248 @@
 ---
-// Ventana de compra: pide el correo y redirige a Mercado Pago.
-// Cualquier elemento con [data-buy] en la página la abre, y también el enlace
-// directo dominio.com/<producto>#pagar (útil para anuncios).
-// En móvil se muestra como panel inferior ("bottom sheet") con scroll propio.
-import type { Product } from "@/config/types";
+// Ventana de compra con pago INCRUSTADO de Stripe (Payment Element).
+//   Paso 1: datos del comprador (correo; y dirección + nombre si el producto lo pide).
+//   Paso 2: formulario de pago de Stripe dentro de la misma ventana.
+// La verificación del banco (3D Secure) aparece encima, sin salir del sitio.
+// Cualquier elemento con [data-buy] abre la ventana, y también dominio.com/<producto>#pagar.
+// En móvil se muestra como panel inferior con scroll propio.
+import type { Brand, Product } from "@/config/types";
 import Price from "@/components/ui/Price.astro";
 import Icon from "@/components/ui/Icon.astro";
+import { mergeTheme } from "@/lib/theme";
+import { formatMoney } from "@/lib/money";
 
 interface Props {
+  brand: Brand;
   product: Product;
+  /** Clave publicable de Stripe (pk_…). */
+  publishableKey?: string;
 }
-const { product } = Astro.props;
+const { brand, product, publishableKey } = Astro.props;
+const t = mergeTheme(brand.theme, product.theme);
+// Estilo del formulario de Stripe con los colores y la tipografía del producto.
+const appearance = {
+  theme: "stripe",
+  variables: {
+    colorPrimary: t.accent,
+    colorText: t.text,
+    colorTextSecondary: t.muted,
+    colorBackground: "#ffffff",
+    colorDanger: "#b42318",
+    fontFamily: t.fontBody,
+    borderRadius: "10px",
+    spacingUnit: "4px",
+  },
+};
+const price = `${formatMoney(product.price, product.currency).replace(".00", "")} ${product.currency}`;
 ---
 
-<dialog id="buy-dialog" class="buy" aria-labelledby="buy-title" data-product-id={product.id}>
-  <form class="buy__card" novalidate>
+<dialog
+  id="buy-dialog"
+  class="buy"
+  aria-labelledby="buy-title"
+  data-product-id={product.id}
+  data-pk={publishableKey ?? ""}
+  data-appearance={JSON.stringify(appearance)}
+  data-font-url={t.fontUrl ?? ""}
+>
+  <!-- Fuera del área con scroll: siempre visible. -->
+  <button type="button" class="buy__x" data-close aria-label="Cerrar">✕</button>
+  <div class="buy__card">
+    <div class="buy__inner">
     <span class="buy__grip" aria-hidden="true"></span>
-    <button type="button" class="buy__x" data-close aria-label="Cerrar">✕</button>
 
     <p class="eyebrow">Estás a un paso</p>
     <h2 id="buy-title" class="buy__title">{product.name}</h2>
     <Price product={product} size="md" />
 
-    <label class="buy__field">
-      <span>¿A qué correo te enviamos tu PDF?</span>
-      <input
-        type="email"
-        name="email"
-        inputmode="email"
-        autocomplete="email"
-        autocapitalize="off"
-        spellcheck="false"
-        placeholder="tucorreo@ejemplo.com"
-        required
-      />
-    </label>
-    <p class="buy__err" role="alert" hidden></p>
+    <!-- Paso 1: datos del comprador -->
+    <form class="buy__step" data-step="details" novalidate>
+      <label class="buy__field">
+        <span>¿A qué correo te enviamos tu PDF?</span>
+        <input
+          type="email"
+          name="email"
+          inputmode="email"
+          autocomplete="email"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="tucorreo@ejemplo.com"
+          required
+        />
+      </label>
+      {
+        // Obligatorios, pero por ahora no tienen name: no se envían ni se guardan.
+        product.askAddress && (
+          <>
+            <label class="buy__field">
+              <span>Dirección</span>
+              <textarea
+                data-address
+                required
+                rows="3"
+                autocomplete="street-address"
+                placeholder="Calle y número, colonia, código postal, ciudad y estado"
+              />
+            </label>
+            <label class="buy__field">
+              <span>Nombre completo</span>
+              <input
+                type="text"
+                data-fullname
+                required
+                autocomplete="name"
+                autocapitalize="words"
+                placeholder="Nombre y apellidos"
+              />
+            </label>
+            <p class="buy__ship">
+              <Icon name="check" size={16} /> Envío gratis de 1 a 2 días hábiles
+            </p>
+          </>
+        )
+      }
+      <p class="buy__err" role="alert" hidden></p>
+      <button type="submit" class="btn btn-cta btn-lg btn-block">
+        <Icon name="lock" size={18} />
+        <span data-label>Continuar al pago</span>
+      </button>
+    </form>
 
-    <button type="submit" class="btn btn-cta btn-lg btn-block">
-      <Icon name="lock" size={18} />
-      <span data-label>Continuar al pago seguro</span>
-    </button>
+    <!-- Paso 2: pago incrustado de Stripe -->
+    <div class="buy__step" data-step="pay" hidden>
+      <button type="button" class="buy__back" data-back>
+        ← <span data-email></span> · cambiar
+      </button>
+      <div class="buy__total">
+        <span>Total</span>
+        <strong data-total>{price}</strong>
+      </div>
+      <div id="payment-element" class="buy__stripe">
+        <p class="buy__loading">Cargando pago seguro…</p>
+      </div>
+      <p class="buy__err" role="alert" hidden></p>
+      <button type="button" class="btn btn-cta btn-lg btn-block" data-pay disabled>
+        <Icon name="lock" size={18} />
+        <span data-label>Pagar {price}</span>
+      </button>
+    </div>
 
-    <ul class="buy__methods" aria-label="Métodos de pago">
-      <li>Tarjeta</li>
-      <li>OXXO</li>
-      <li>SPEI</li>
-      <li>Mercado Pago</li>
-    </ul>
     <p class="buy__note">
-      Serás redirigido a Mercado Pago. Al confirmarse el pago descargas tu PDF al instante y también
-      te llega por correo.
+      <Icon name="lock" size={14} /> Pago con tarjeta de crédito o débito procesado de forma segura por
+      Stripe. Tus datos de tarjeta nunca pasan por nuestros servidores. Recibes tu PDF al instante y
+      también por correo.
     </p>
-  </form>
+    </div>
+  </div>
 </dialog>
 
 <script>
+  type StripeCheckout = {
+    createPaymentElement: (o?: object) => { mount: (s: string) => void; destroy?: () => void };
+    loadActions: () => Promise<
+      | {
+          type: "success";
+          actions: {
+            getSession: () => { total: { total: { amount: string } } };
+            confirm: (o?: object) => Promise<{ type: "success" } | { type: "error"; error: { message: string } }>;
+          };
+        }
+      | { type: "error"; error: { message: string } }
+    >;
+    on: (event: "change", cb: (s: { canConfirm: boolean }) => void) => void;
+  };
+  type StripeFactory = (
+    pk: string,
+    o?: object
+  ) => { initCheckoutElementsSdk: (o: object) => StripeCheckout };
+
+  const STRIPE_JS = "https://js.stripe.com/dahlia/stripe.js";
+  let stripeLoading: Promise<StripeFactory> | null = null;
+  // Stripe.js se carga siempre desde js.stripe.com (requisito PCI), solo al abrir la ventana.
+  function loadStripe(): Promise<StripeFactory> {
+    const w = window as unknown as { Stripe?: StripeFactory };
+    if (w.Stripe) return Promise.resolve(w.Stripe);
+    stripeLoading ??= new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = STRIPE_JS;
+      s.onload = () => (w.Stripe ? resolve(w.Stripe) : reject(new Error("Stripe no cargó")));
+      s.onerror = () => reject(new Error("No se pudo cargar el pago seguro. Revisa tu conexión."));
+      document.head.appendChild(s);
+    });
+    return stripeLoading;
+  }
+
   const dialog = document.getElementById("buy-dialog") as HTMLDialogElement | null;
   if (dialog) {
-    const form = dialog.querySelector("form")!;
-    const input = form.querySelector<HTMLInputElement>('input[name="email"]')!;
-    const err = form.querySelector<HTMLParagraphElement>(".buy__err")!;
-    const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
-    const label = submit.querySelector<HTMLSpanElement>("[data-label]")!;
-    const idleLabel = label.textContent;
-    // Navegadores antiguos (algunos Android/iOS) no soportan <dialog>.
+    const details = dialog.querySelector<HTMLFormElement>('[data-step="details"]')!;
+    const payStep = dialog.querySelector<HTMLDivElement>('[data-step="pay"]')!;
+    const input = details.querySelector<HTMLInputElement>('input[name="email"]')!;
+    const address = details.querySelector<HTMLTextAreaElement>("textarea[data-address]");
+    const fullName = details.querySelector<HTMLInputElement>("input[data-fullname]");
+    const detailsErr = details.querySelector<HTMLParagraphElement>(".buy__err")!;
+    const detailsBtn = details.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const detailsLabel = detailsBtn.querySelector<HTMLSpanElement>("[data-label]")!;
+    const payErr = payStep.querySelector<HTMLParagraphElement>(".buy__err")!;
+    const payBtn = payStep.querySelector<HTMLButtonElement>("[data-pay]")!;
+    const payLabel = payBtn.querySelector<HTMLSpanElement>("[data-label]")!;
+    const payIdle = payLabel.textContent;
+    const emailOut = payStep.querySelector<HTMLSpanElement>("[data-email]")!;
+    const totalOut = payStep.querySelector<HTMLElement>("[data-total]")!;
+    const mountPoint = payStep.querySelector<HTMLDivElement>("#payment-element")!;
+    const loadingHtml = mountPoint.innerHTML;
+
     const native = typeof dialog.showModal === "function";
     const touch = window.matchMedia("(pointer: coarse)").matches;
+    let paymentElement: { destroy?: () => void } | null = null;
+    const card = dialog.querySelector<HTMLDivElement>(".buy__card")!;
+    const inner = dialog.querySelector<HTMLDivElement>(".buy__inner")!;
+
+    // Altura VISIBLE de la pantalla (descuenta el teclado del celular), para que
+    // la ventana siempre quepa y en móvil quede justo arriba del teclado.
+    const vv = window.visualViewport;
+    const syncViewport = () => {
+      const height = vv ? vv.height : window.innerHeight;
+      const keyboard = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0;
+      dialog.style.setProperty("--vvh", `${Math.round(height)}px`);
+      dialog.style.setProperty("--kb", `${Math.round(keyboard)}px`);
+    };
+    vv?.addEventListener("resize", syncViewport);
+    vv?.addEventListener("scroll", syncViewport);
+    window.addEventListener("resize", syncViewport);
+    syncViewport();
+
+    // La ventana crece o se encoge (animada) según su contenido: cambio de paso,
+    // errores o el formulario de Stripe al cargar. Si no cabe, hace scroll interno.
+    new ResizeObserver(() => {
+      card.style.setProperty("--content-h", `${Math.ceil(inner.getBoundingClientRect().height)}px`);
+    }).observe(inner);
+
+    const showError = (el: HTMLParagraphElement, msg: string) => {
+      el.textContent = msg;
+      el.hidden = false;
+    };
+    const showStep = (step: "details" | "pay") => {
+      details.hidden = step !== "details";
+      payStep.hidden = step !== "pay";
+    };
+    const resetPay = () => {
+      paymentElement?.destroy?.();
+      paymentElement = null;
+      mountPoint.innerHTML = loadingHtml;
+      payErr.hidden = true;
+      payBtn.disabled = true;
+      payLabel.textContent = payIdle;
+    };
 
     const open = () => {
-      err.hidden = true;
+      detailsErr.hidden = true;
+      syncViewport();
       if (native) dialog.showModal();
       else dialog.setAttribute("open", "");
       document.documentElement.classList.add("buy-open");
       if (!native) document.documentElement.classList.add("buy-fallback");
-      // En celulares no abrimos el teclado de golpe: tapa el formulario.
-      if (!touch) input.focus();
+      loadStripe().catch(() => {}); // precarga mientras escribe su correo
+      if (!touch && !details.hidden) input.focus();
     };
     const close = () => {
       if (native) dialog.close();
@@ -84,11 +251,6 @@ const { product } = Astro.props;
     };
     dialog.addEventListener("close", () => document.documentElement.classList.remove("buy-open"));
 
-    const showError = (msg: string) => {
-      err.textContent = msg;
-      err.hidden = false;
-    };
-
     document.querySelectorAll("[data-buy]").forEach((el) =>
       el.addEventListener("click", (e) => {
         e.preventDefault();
@@ -96,44 +258,119 @@ const { product } = Astro.props;
       })
     );
     dialog.querySelector("[data-close]")!.addEventListener("click", close);
-    // Cerrar al tocar fuera del panel.
     dialog.addEventListener("click", (e) => {
       if (e.target === dialog) close();
     });
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && dialog.hasAttribute("open")) close();
     });
-    // Que el campo quede visible cuando aparece el teclado.
-    input.addEventListener("focus", () => {
-      setTimeout(() => input.scrollIntoView({ block: "center", behavior: "smooth" }), 300);
+    // Al enfocar un campo (y aparecer el teclado), lo centra dentro del panel.
+    details.querySelectorAll<HTMLElement>("input, textarea").forEach((field) =>
+      field.addEventListener("focus", () => {
+        setTimeout(() => field.scrollIntoView({ block: "center", behavior: "smooth" }), 320);
+      })
+    );
+    payStep.querySelector("[data-back]")!.addEventListener("click", () => {
+      resetPay();
+      showStep("details");
     });
 
     if (location.hash === "#pagar") open();
 
-    form.addEventListener("submit", async (e) => {
+    // Paso 1 → crea la sesión de pago y monta el formulario de Stripe.
+    details.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = input.value.trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showError("Revisa tu correo: ahí te enviaremos el PDF.");
+        showError(detailsErr, "Revisa tu correo: ahí te enviaremos el PDF.");
         input.focus();
         return;
       }
-      err.hidden = true;
-      submit.disabled = true;
-      label.textContent = "Conectando con Mercado Pago…";
+      if (address && address.value.trim().length < 10) {
+        showError(detailsErr, "Escribe tu dirección completa.");
+        address.focus();
+        return;
+      }
+      if (fullName && fullName.value.trim().length < 3) {
+        showError(detailsErr, "Escribe tu nombre completo.");
+        fullName.focus();
+        return;
+      }
+      const pk = dialog.dataset.pk;
+      if (!pk) {
+        showError(detailsErr, "Los pagos aún no están configurados (falta la clave de Stripe).");
+        return;
+      }
+
+      detailsErr.hidden = true;
+      detailsBtn.disabled = true;
+      detailsLabel.textContent = "Preparando pago seguro…";
       try {
-        const res = await fetch("/api/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, productId: dialog.dataset.productId }),
+        const [StripeJs, res] = await Promise.all([
+          loadStripe(),
+          fetch("/api/checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, productId: dialog.dataset.productId }),
+          }),
+        ]);
+        const data = (await res.json().catch(() => ({}))) as {
+          clientSecret?: string;
+          sessionId?: string;
+          error?: string;
+        };
+        if (!res.ok || !data.clientSecret) throw new Error(data.error || "No se pudo iniciar el pago.");
+
+        emailOut.textContent = email;
+        resetPay();
+        showStep("pay");
+
+        const stripe = StripeJs(pk, { locale: "es-419" });
+        const fontUrl = dialog.dataset.fontUrl;
+        const checkout = stripe.initCheckoutElementsSdk({
+          clientSecret: data.clientSecret,
+          elementsOptions: {
+            appearance: JSON.parse(dialog.dataset.appearance || "{}"),
+            fonts: fontUrl ? [{ cssSrc: fontUrl }] : [],
+          },
         });
-        const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
-        if (!res.ok || !data.url) throw new Error(data.error || "No se pudo iniciar el pago.");
-        window.location.href = data.url;
-      } catch (e) {
-        showError(e instanceof Error ? e.message : "Ocurrió un error. Intenta de nuevo.");
-        submit.disabled = false;
-        label.textContent = idleLabel;
+        checkout.on("change", (session) => {
+          payBtn.disabled = !session.canConfirm;
+        });
+        const loaded = await checkout.loadActions();
+        if (loaded.type === "error") throw new Error(loaded.error.message);
+        // Stripe exige mostrar el total que reporta la sesión.
+        totalOut.textContent = loaded.actions.getSession().total.total.amount;
+
+        mountPoint.innerHTML = "";
+        const el = checkout.createPaymentElement({
+          layout: "tabs",
+          // Oculta Link ("Guardar mis datos para un proceso de compra más rápido").
+          wallets: { link: "never" },
+        });
+        el.mount("#payment-element");
+        paymentElement = el;
+
+        payBtn.onclick = async () => {
+          payErr.hidden = true;
+          payBtn.disabled = true;
+          payLabel.textContent = "Procesando pago…";
+          const result = await loaded.actions.confirm({ redirect: "if_required" });
+          if (result.type === "error") {
+            showError(payErr, result.error.message);
+            payBtn.disabled = false;
+            payLabel.textContent = payIdle;
+            return;
+          }
+          payLabel.textContent = "¡Pago aprobado! Abriendo tu descarga…";
+          window.location.href = `/gracias?session_id=${encodeURIComponent(data.sessionId ?? "")}`;
+        };
+      } catch (err) {
+        showStep("details");
+        showError(detailsErr, err instanceof Error ? err.message : "Ocurrió un error. Intenta de nuevo.");
+      } finally {
+        detailsBtn.disabled = false;
+        detailsLabel.textContent = "Continuar al pago";
       }
     });
   }
@@ -145,10 +382,11 @@ const { product } = Astro.props;
     padding: 0;
     margin: auto;
     background: transparent;
-    width: min(460px, calc(100% - 28px));
+    width: min(480px, calc(100% - 28px));
     max-width: 100%;
+    /* --vvh = altura visible real (la calcula el script; descuenta el teclado). */
     max-height: calc(100vh - 28px);
-    max-height: calc(100dvh - 28px);
+    max-height: calc(var(--vvh, 100dvh) - 28px);
     overflow: visible;
     color: var(--text);
   }
@@ -183,18 +421,33 @@ const { product } = Astro.props;
       transform: translateY(16px);
     }
   }
+  /* El panel toma la altura de su contenido (animada) hasta el máximo de la
+     pantalla; si no cabe, el contenido hace scroll dentro del panel. */
   .buy__card {
     position: relative;
     background: var(--surface);
     border-radius: var(--radius);
-    padding: 30px 26px 24px;
-    display: grid;
-    gap: 14px;
+    height: var(--content-h, auto);
     max-height: inherit;
+    overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.5);
+    transition: height 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .buy__inner {
+    display: grid;
+    gap: 14px;
+    padding: 30px 26px 24px;
+    min-width: 0;
+  }
+  .buy__step {
+    display: grid;
+    gap: 14px;
+  }
+  .buy__step[hidden] {
+    display: none;
   }
   .buy__grip {
     display: none;
@@ -203,6 +456,7 @@ const { product } = Astro.props;
     position: absolute;
     top: 12px;
     right: 12px;
+    z-index: 2;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -228,7 +482,8 @@ const { product } = Astro.props;
     font-size: 0.95rem;
     margin-top: 4px;
   }
-  .buy__field input {
+  .buy__field input,
+  .buy__field textarea {
     width: 100%;
     font: inherit;
     font-weight: 400;
@@ -242,10 +497,61 @@ const { product } = Astro.props;
     -webkit-appearance: none;
     appearance: none;
   }
-  .buy__field input:focus {
+  .buy__field textarea {
+    resize: vertical;
+    min-height: 84px;
+    line-height: 1.4;
+  }
+  .buy__field input:focus,
+  .buy__field textarea:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+  .buy__ship {
+    margin: -4px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .buy__back {
+    justify-self: start;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+  .buy__total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-alt);
+    font-weight: 600;
+  }
+  .buy__total strong {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+  }
+  .buy__stripe {
+    min-height: 120px;
+  }
+  .buy__loading {
+    margin: 0;
+    padding: 40px 0;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.92rem;
   }
   .buy__err {
     margin: 0;
@@ -258,45 +564,34 @@ const { product } = Astro.props;
     padding: 14px 18px;
     white-space: normal;
   }
-  .buy__methods {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 6px;
-  }
-  .buy__methods li {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--muted);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 4px 9px;
-  }
   .buy__note {
     margin: 0;
     text-align: center;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--muted);
     line-height: 1.5;
   }
+  .buy__note :global(svg) {
+    vertical-align: -2px;
+  }
 
-  /* Móvil: panel que sube desde abajo, a todo el ancho. */
+  /* Móvil: panel que sube desde abajo, a todo el ancho, siempre arriba del teclado. */
   @media (max-width: 560px) {
     .buy {
       width: 100%;
-      max-height: 92vh;
-      max-height: 92dvh;
       margin: auto 0 0;
+      max-height: calc(100vh - 12px);
+      max-height: calc(var(--vvh, 100dvh) - 12px);
     }
     .buy[open] {
-      inset: auto 0 0 0;
+      inset: auto 0 var(--kb, 0px) 0;
+      transition: bottom 0.2s ease;
     }
     .buy__card {
       border-radius: calc(var(--radius) + 4px) calc(var(--radius) + 4px) 0 0;
-      padding: 14px 20px calc(20px + env(safe-area-inset-bottom));
+    }
+    .buy__inner {
+      padding: 14px 18px calc(18px + env(safe-area-inset-bottom));
       gap: 12px;
     }
     .buy__grip {
@@ -318,8 +613,10 @@ const { product } = Astro.props;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .buy[open] {
+    .buy[open],
+    .buy__card {
       animation: none;
+      transition: none;
     }
   }
 </style>

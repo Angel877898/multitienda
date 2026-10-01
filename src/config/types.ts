@@ -141,6 +141,12 @@ export interface Brand {
   heroArt?: string;
   /** Texto de la barra superior de anuncio (opcional). */
   announcement?: string;
+  /**
+   * Id del Pixel / conjunto de datos de Meta (Administrador de eventos). Es público.
+   * Si falta, no se carga el pixel. El token de la API de conversiones va aparte,
+   * como secreto META_CAPI_TOKEN en Cloudflare.
+   */
+  metaPixelId?: string;
 
   theme: Theme;
 

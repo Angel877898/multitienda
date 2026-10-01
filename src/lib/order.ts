@@ -6,6 +6,17 @@
 /** Cookie con el id de la Checkout Session creada por este navegador. */
 export const ORDER_COOKIE = "order_ref";
 
+/** Datos del navegador del comprador para atribuir la venta al anuncio (Meta). */
+export interface OrderTracking {
+  /** Cookies del Pixel de Meta (_fbp y _fbc, esta última si vino de un anuncio). */
+  fbp?: string;
+  fbc?: string;
+  ip?: string;
+  ua?: string;
+  /** Página donde se inició la compra. */
+  url?: string;
+}
+
 export interface OrderRecord {
   /** Id de la Checkout Session de Stripe (cs_…). */
   orderId: string;
@@ -14,6 +25,7 @@ export interface OrderRecord {
   email: string;
   createdAt: string;
   deliveredAt?: string;
+  tracking?: OrderTracking;
 }
 
 const key = (orderId: string) => `order:${orderId}`;

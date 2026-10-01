@@ -51,6 +51,13 @@ const MX_STATES = [
   data-pk={publishableKey ?? ""}
   data-appearance={JSON.stringify(appearance)}
   data-font-url={t.fontUrl ?? ""}
+  data-pixel={JSON.stringify({
+    content_ids: [product.id],
+    content_name: product.name,
+    content_type: "product",
+    value: product.price,
+    currency: product.currency,
+  })}
 >
   <!-- Fuera del área con scroll: siempre visible. -->
   <button type="button" class="buy__x" data-close aria-label="Cerrar">✕</button>
@@ -238,6 +245,17 @@ const MX_STATES = [
 
   const dialog = document.getElementById("buy-dialog") as HTMLDialogElement | null;
   if (dialog) {
+    // Pixel de Meta (solo si la marca lo tiene configurado; ver BrandLayout).
+    const pixelData = JSON.parse(dialog.dataset.pixel || "{}");
+    const tracked = new Set<string>();
+    const track = (event: string) => {
+      const fbq = (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq;
+      if (!fbq || tracked.has(event)) return;
+      tracked.add(event); // una vez por visita, aunque abra y cierre la ventana
+      fbq("track", event, pixelData);
+    };
+    track("ViewContent");
+
     const details = dialog.querySelector<HTMLFormElement>('[data-step="details"]')!;
     const payStep = dialog.querySelector<HTMLDivElement>('[data-step="pay"]')!;
     const input = details.querySelector<HTMLInputElement>('input[name="email"]')!;
@@ -308,6 +326,7 @@ const MX_STATES = [
       if (!native) document.documentElement.classList.add("buy-fallback");
       loadStripe().catch(() => {}); // precarga mientras escribe su correo
       if (!touch && !details.hidden) input.focus();
+      track("InitiateCheckout");
     };
     const close = () => {
       if (native) dialog.close();
@@ -427,6 +446,7 @@ const MX_STATES = [
           payErr.hidden = true;
           payBtn.disabled = true;
           payLabel.textContent = "Procesando pago…";
+          track("AddPaymentInfo");
           const result = await loaded.actions.confirm({ redirect: "if_required" });
           if (result.type === "error") {
             showError(payErr, result.error.message);
@@ -434,7 +454,7 @@ const MX_STATES = [
             payLabel.textContent = payIdle;
             return;
           }
-          payLabel.textContent = "¡Pago aprobado! Abriendo tu descarga…";
+          payLabel.textContent = "¡Pago aprobado! Un momento…";
           window.location.href = `/gracias?session_id=${encodeURIComponent(data.sessionId ?? "")}`;
         };
       } catch (err) {

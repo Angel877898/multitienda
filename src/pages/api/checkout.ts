@@ -15,6 +15,17 @@ const json = (data: unknown, status = 200) =>
     headers: { "Content-Type": "application/json" },
   });
 
+/** Si el pixel no pudo guardar _fbc (bloqueador), la arma con el fbclid del anuncio. */
+function fbcFromReferer(referer: string | null): string | undefined {
+  if (!referer) return undefined;
+  try {
+    const fbclid = new URL(referer).searchParams.get("fbclid");
+    return fbclid ? `fb.1.${Date.now()}.${fbclid}` : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export const POST: APIRoute = async ({ request, cookies, locals }) => {
   const brand = resolveBrand(request);
 
@@ -79,6 +90,16 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     productId: product.id,
     email,
     createdAt: new Date().toISOString(),
+    // Para reportar la venta a Meta desde el servidor (src/lib/meta.ts).
+    tracking: brand.metaPixelId
+      ? {
+          fbp: cookies.get("_fbp")?.value,
+          fbc: cookies.get("_fbc")?.value ?? fbcFromReferer(request.headers.get("referer")),
+          ip: request.headers.get("cf-connecting-ip") ?? undefined,
+          ua: request.headers.get("user-agent")?.slice(0, 500) ?? undefined,
+          url: request.headers.get("referer")?.split("#")[0] ?? undefined,
+        }
+      : undefined,
   });
 
   // Guardamos el id de la sesión en este navegador: /gracias lo usa como

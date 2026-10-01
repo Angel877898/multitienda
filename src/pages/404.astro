@@ -10,7 +10,7 @@ Astro.response.status = 404;
   <section class="nf wrap wrap-narrow">
     <p class="eyebrow">Error 404</p>
     <h1>No encontramos esta página</h1>
-    <p class="muted">Puede que el enlace haya cambiado. Estos son nuestros materiales disponibles:</p>
+    <p class="muted">Puede que la dirección haya cambiado. Estos son nuestros libros y cuadernillos:</p>
     <ul>
       {brand.products.map((p) => <li><a href={`/${p.slug}`}>{p.name}</a></li>)}
     </ul>

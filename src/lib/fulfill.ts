@@ -2,6 +2,7 @@ import type { CheckoutSession } from "@/lib/stripe";
 import { purchaseFromSession, downloadUrl, brandUrl, type Purchase } from "@/lib/delivery";
 import { sendEmail, deliveryHtml } from "@/lib/email";
 import { loadOrder, saveOrder, markDelivered } from "@/lib/order";
+import { sendPurchaseEvent } from "@/lib/meta";
 
 // Entrega de una compra pagada: correo con el enlace de descarga.
 // La llaman el webhook de Stripe y la página de gracias; es segura de llamar
@@ -47,5 +48,9 @@ export async function fulfill(env: Env, session: CheckoutSession): Promise<Fulfi
     await saveOrder(env, { ...record, deliveredAt: undefined });
     throw e;
   }
+  // Reporta la venta a Meta (anuncios). Si falla no afecta la entrega.
+  await sendPurchaseEvent(purchase, session, record.tracking).catch((e) =>
+    console.error("[fulfill] Meta CAPI", session.id, e)
+  );
   return { status: "delivered", purchase, alreadyDelivered: false };
 }

@@ -6,7 +6,7 @@ export const guiasTusExamenes: Brand = {
   name: "Guías Tus Exámenes",
   tagline: "Guías de estudio claras para aprobar tu examen de admisión.",
   logoMark: "/brands/guias-tus-examenes/mark.svg",
-  announcement: "Guías actualizadas para la convocatoria 2027 · Descarga inmediata",
+  announcement: "Guías actualizadas para la convocatoria 2027 · Envío gratis",
 
   theme: {
     accent: "#1D4ED8",
@@ -46,7 +46,7 @@ export const guiasTusExamenes: Brand = {
   faq: [
     {
       q: "¿Cómo recibo la guía?",
-      a: "Al confirmarse tu pago te enviaremos un correo con el envio del libro.",
+      a: "Te la enviamos gratis a tu domicilio y llega en 1 a 2 días hábiles. Al confirmarse tu pago recibirás un correo con la confirmación de tu pedido.",
     },
     {
       q: "¿Qué formas de pago aceptan?",
@@ -77,6 +77,7 @@ export const guiasTusExamenes: Brand = {
     {
       id: "guia-unam-area-2",
       slug: "guia-unam-area-2",
+      askAddress: true,
       name: "Guía UNAM Área 2 · Ciencias Biológicas, Químicas y de la Salud",
       summary: "Todo el temario del Área 2 explicado, con 1,200 reactivos resueltos y 4 simuladores.",
       price: 349,
@@ -92,7 +93,7 @@ export const guiasTusExamenes: Brand = {
       },
       specs: [
         { label: "Práctica", value: "1,200 reactivos + 4 simuladores" },
-        { label: "Entrega", value: "Inmediata por correo" },
+        { label: "Entrega", value: "Envío gratis a tu domicilio" },
       ],
       hero: {
         eyebrow: "Examen de admisión a licenciatura",
@@ -109,7 +110,7 @@ export const guiasTusExamenes: Brand = {
         title: "Estudiar sin guía es perder tiempo",
         items: [
           "No sabes qué temas pesan más ni por dónde empezar.",
-          "Tienes decenas de PDFs sueltos y videos, pero nada ordenado.",
+          "Tienes decenas de apuntes sueltos y videos, pero nada ordenado.",
           "Resuelves ejercicios sin saber por qué fallaste.",
           "Te preocupa llegar al examen sin haber practicado con el formato real.",
         ],
@@ -168,6 +169,7 @@ export const guiasTusExamenes: Brand = {
     {
       id: "guia-exani-ii",
       slug: "guia-exani-ii",
+      askAddress: true,
       name: "Guía EXANI-II · Admisión",
       summary: "Pensamiento matemático, redacción y comprensión lectora con 800 reactivos resueltos.",
       price: 299,
@@ -182,7 +184,7 @@ export const guiasTusExamenes: Brand = {
       },
       specs: [
         { label: "Práctica", value: "800 reactivos + 3 simuladores" },
-        { label: "Entrega", value: "Inmediata por correo" },
+        { label: "Entrega", value: "Envío gratis a tu domicilio" },
       ],
       hero: {
         eyebrow: "Para universidades que aplican EXANI-II",

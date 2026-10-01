@@ -26,6 +26,8 @@ export default defineConfig({
       STRIPE_WEBHOOK_SECRET: envField.string({ context: "server", access: "secret", optional: true }),
       DOWNLOAD_SECRET: envField.string({ context: "server", access: "secret", optional: true }),
       RESEND_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      // Token de la API de conversiones de Meta (opcional): reporta cada compra desde el servidor.
+      META_CAPI_TOKEN: envField.string({ context: "server", access: "secret", optional: true }),
     },
   },
 });

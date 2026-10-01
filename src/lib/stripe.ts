@@ -17,6 +17,8 @@ export interface CheckoutSession {
   metadata?: Record<string, string>;
   amount_total?: number;
   currency?: string;
+  /** false con llaves de prueba (sk_test_). */
+  livemode?: boolean;
 }
 
 type Primitive = string | number | boolean;

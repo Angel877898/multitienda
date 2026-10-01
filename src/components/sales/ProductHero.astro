@@ -40,15 +40,15 @@ const dark = mergeTheme(brand.theme, product.theme).heroStyle === "dark";
       <div class="hero__buy" id="comprar">
         <div class="hero__price">
           <Price product={product} />
-          <span class="hero__once">Pago único · Incluye envio</span>
+          <span class="hero__once">Pago único · Envío gratis</span>
         </div>
         <button type="button" class="btn btn-cta btn-lg hero__cta" data-buy>
           Quiero adquirir mi Libro
-          <Icon name="download" size={20} />
+          <Icon name="book" size={20} />
         </button>
         <div class="hero__trust">
           <span><Icon name="lock" size={16} /> Pago seguro con tarjeta</span>
-          <span><Icon name="download" size={16} /> Acceso inmediato</span>
+          <span><Icon name="gift" size={16} /> Envío gratis a tu domicilio</span>
           {brand.guarantee && <span><Icon name="shield" size={16} /> Garantía de satisfacción</span>}
         </div>
       </div>

@@ -10,6 +10,7 @@ import { getCheckoutSession } from "@/lib/stripe";
 import { purchaseFromSession, downloadUrl, DOWNLOAD_TTL_HOURS, type Purchase } from "@/lib/delivery";
 import { fulfill } from "@/lib/fulfill";
 import { ORDER_COOKIE } from "@/lib/order";
+import { purchaseEventData } from "@/lib/meta";
 
 const brand = resolveBrand(Astro.request);
 const sessionId =
@@ -19,6 +20,9 @@ type State = "approved" | "pending" | "unknown";
 let state: State = "unknown";
 let purchase: Purchase | null = null;
 let link: string | null = null;
+// Evento Purchase para el Pixel de Meta. eventID = id de la sesión: el mismo que
+// usa la API de conversiones (src/lib/meta.ts) para que Meta no la cuente doble.
+let pixelPurchase: { eventID: string; data: Record<string, unknown> } | null = null;
 
 if (sessionId) {
   try {
@@ -28,6 +32,7 @@ if (sessionId) {
       if (session.payment_status === "paid" && purchase?.brand.id === brand.id) {
         state = "approved";
         link = await downloadUrl(siteUrl(Astro.request), purchase);
+        pixelPurchase = { eventID: session.id, data: purchaseEventData(purchase, session) };
         // Entrega también desde aquí por si el webhook tarda (no duplica envíos).
         await fulfill(Astro.locals.runtime.env, session).catch((e) =>
           console.error("[gracias] no se pudo enviar el correo", e)
@@ -93,6 +98,20 @@ if (sessionId) {
       <a class="btn btn-ghost" href="/">Volver a la tienda</a>
     </div>
   </section>
+  {
+    pixelPurchase && (
+      <script is:inline define:vars={{ pixelPurchase }}>
+        // Una sola vez por compra aunque recargue la página.
+        var key = "fbq_purchase_" + pixelPurchase.eventID;
+        var seen = false;
+        try { seen = !!localStorage.getItem(key); } catch (e) {}
+        if (window.fbq && !seen) {
+          fbq("track", "Purchase", pixelPurchase.data, { eventID: pixelPurchase.eventID });
+          try { localStorage.setItem(key, "1"); } catch (e) {}
+        }
+      </script>
+    )
+  }
 </BrandLayout>
 
 <style>

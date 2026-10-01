@@ -12,6 +12,8 @@ export const sanacionInterior: Brand = {
   logoWords: ["Sanación", "Interior"],
   heroArt: `${IMG}/flower.svg`,
   announcement: "Sanacion Interior",
+  // Id del Pixel de Meta (Administrador de eventos → Conjuntos de datos). Ej: "1234567890123456".
+  metaPixelId: "2059703631318907",
 
   // Branding: noche morada con estrellas y oro (del logo y las portadas).
   theme: {
@@ -44,7 +46,7 @@ export const sanacionInterior: Brand = {
     eyebrow: "Energía · Emoción · Bienestar",
     headline: "Herramientas para *sanar lo que sigues cargando*",
     subheadline:
-      "Cuadernos, cartas y guías para soltar, perdonar y volver a ti. Descárgalos al instante y úsalos a tu ritmo, en tu celular o impresos.",
+      "Libros y cuadernillos para soltar, perdonar y volver a ti. Te los enviamos a tu casa para que los trabajes a tu ritmo, con pluma en mano.",
   },
 
   // ⚠️ Confirma que ofreces esta política antes de publicar.
@@ -56,6 +58,10 @@ export const sanacionInterior: Brand = {
   },
 
   faq: [
+    {
+      q: "¿Cómo recibo mi libro?",
+      a: "Te lo enviamos gratis a tu domicilio y llega en 1 a 2 días hábiles. Al confirmarse tu pago recibirás un correo con la confirmación de tu pedido.",
+    },
     {
       q: "¿Cómo puedo pagar?",
       a: "Con tarjeta de crédito o débito (Visa, Mastercard o American Express), directamente en esta página. El pago lo procesa Stripe de forma segura: tus datos de tarjeta nunca pasan por nuestros servidores.",
@@ -88,14 +94,15 @@ export const sanacionInterior: Brand = {
     {
       id: "reset-21-dias-hooponopono",
       slug: "reset-21-dias",
+      askAddress: true,
       name: "Reset de 21 días con Ho'oponopono",
       summary:
-        "Cuaderno interactivo con 21 lecturas guiadas y 21 hojas de trabajo para soltar lo que sigues cargando con cuatro frases.",
+        "Cuadernillo con 21 lecturas guiadas y 21 hojas de trabajo para soltar lo que sigues cargando con cuatro frases.",
       price: 99,
       currency: "MXN",
       file: "Reset-21-Dias-Hooponopono_2.pdf",
       featured: true,
-      badge: "Cuaderno interactivo",
+      badge: "Cuadernillo",
       emblem: `${IMG}/emblems/reset.svg`,
       theme: {
         accent: "#5B21B6",
@@ -108,7 +115,7 @@ export const sanacionInterior: Brand = {
       cover: {
         image: `${IMG}/products/reset-21-dias/cover.webp`,
         ratio: "1000 / 1294",
-        kicker: "Cuaderno interactivo",
+        kicker: "Cuadernillo",
         title: "Reset de 21 días",
       },
       specs: [
@@ -121,7 +128,7 @@ export const sanacionInterior: Brand = {
         subheadline:
           "Lo siento. Perdóname. Gracias. Te amo. Cuatro frases de Ho'oponopono, una lectura corta y una hoja de trabajo al día para limpiar el resentimiento, la culpa y el ruido interno.",
         bullets: [
-          "21 lecturas guiadas y 21 hojas de trabajo rellenables",
+          "21 lecturas guiadas y 21 hojas de trabajo para escribir",
           "Kit de limpieza de emergencia para 12 situaciones reales",
           "Tarjetas de bolsillo recortables con las cuatro frases",
         ],
@@ -173,7 +180,7 @@ export const sanacionInterior: Brand = {
           "Cargas un enojo, una culpa o una relación que no has podido soltar.",
           "Te atrae el Ho'oponopono y quieres practicarlo con un método diario.",
           "Buscas algo concreto: 10 a 20 minutos al día, no teoría infinita.",
-          "Quieres un proceso que puedas llenar en tu celular o imprimir.",
+          "Te gusta escribir a mano y tener tu proceso en papel.",
         ],
         notFor: [
           "Esperas resultados milagrosos sin aparecer los 21 días.",
@@ -182,7 +189,7 @@ export const sanacionInterior: Brand = {
       },
       includes: [
         "21 lecturas guiadas",
-        "21 hojas de trabajo rellenables",
+        "21 hojas de trabajo para escribir",
         "Mapa de carga, compromiso y tracker de 21 días",
         "Kit de limpieza de emergencia",
         "Tarjetas de bolsillo recortables",
@@ -203,6 +210,7 @@ export const sanacionInterior: Brand = {
     {
       id: "cartas-de-perdon",
       slug: "cartas-de-perdon",
+      askAddress: true,
       name: "Cartas de Perdón · 30 cartas guiadas",
       summary:
         "Cuadernillo",
@@ -239,7 +247,7 @@ export const sanacionInterior: Brand = {
         bullets: [
           "30 cartas con frases guía para no quedarte en blanco",
           "Un ritual de cierre después de cada carta",
-          "Llénalo en tu tablet o imprímelo y escríbelo a mano",
+          "Espacio para escribir cada carta a mano, a tu ritmo",
         ],
       },
       pain: {
@@ -315,6 +323,7 @@ export const sanacionInterior: Brand = {
     {
       id: "runas-prohibidas-de-sanacion",
       slug: "runas-prohibidas-de-sanacion",
+      askAddress: true,
       name: "Runas Prohibidas de Sanación",
       summary:
         "Guía ilustrada de runas y rituales sencillos para acompañar tu bienestar en cuerpo, mente y espíritu.",
@@ -538,6 +547,349 @@ export const sanacionInterior: Brand = {
         {
           q: "¿Es un libro de lectura o de ejercicios?",
           a: "Es un libro de lectura reflexiva, con preguntas que te invitan a mirar tu propia historia a tu ritmo, con pausas y sin presión.",
+        },
+      ],
+    },
+
+    // ─────────────────────────────── VOLVER A MÍ ───────────────────────────────
+    {
+      id: "volver-a-mi-divorcio-separacion",
+      slug: "volver-a-mi",
+      askAddress: true,
+      name: "Volver a Mí · Sanar después de un divorcio o separación",
+      summary:
+        "Libro para atravesar una separación: sentir el duelo, entender lo que pasó, soltar y reconstruir una vida que sea tuya.",
+      price: 99,
+      currency: "MXN",
+      file: "Volver-a-Mi-Divorcio-Separacion.pdf",
+      badge: "Libro",
+      emblem: `${IMG}/emblems/volver.svg`,
+      theme: {
+        accent: "#6B2F8F",
+        glow: "#A24D9A",
+        dark: "#1F0F33",
+        surfaceAlt: "#F6EEF7",
+        line: "#EADCEB",
+        pattern: STARS,
+      },
+      cover: {
+        image: `${IMG}/products/volver-a-mi/cover.webp`,
+        ratio: "1000 / 1500",
+        kicker: "Libro · Edición 2026",
+        title: "Volver a Mí",
+      },
+      specs: [
+        { label: "Formato", value: "Libro" },
+        { label: "Extensión", value: "39 páginas · 12 capítulos" },
+        { label: "En cada capítulo", value: "Una práctica y una frase" },
+      ],
+      hero: {
+        eyebrow: "Sanar después de un divorcio o separación",
+        headline: "Terminó una historia. *No terminaste tú.*",
+        subheadline:
+          "Un acompañamiento cálido para atravesar el duelo, entender lo que pasó, soltar lo que te ata y reconstruir una vida que sea tuya. En ese orden, y a tu ritmo.",
+        bullets: [
+          "12 capítulos en 4 partes: atravesar, entender, soltar y reconstruir",
+          "Una práctica y una frase para llevar contigo en cada capítulo",
+          "Guía para las noches difíciles: 12 momentos y qué hacer",
+        ],
+      },
+      pain: {
+        title: "Nadie sabe manejar esto",
+        items: [
+          "Extrañas y sientes alivio al mismo tiempo, y piensas que algo está mal contigo.",
+          "No solo perdiste a una pareja: también un proyecto de vida, una rutina y una red.",
+          "Escuchas «a tu edad ya deberías saber manejarlo» y no ayuda nada a las tres de la mañana.",
+          "Quieres escribirle, revisas sus redes y no sabes cómo poner distancia.",
+        ],
+        solution:
+          "Se aprende atravesándolo. Este libro no busca culpables ni te pide fingir que ya lo superaste: te acompaña a sentir, entender, soltar y volver a ti.",
+      },
+      quote: {
+        text: "Extrañar no significa que debas volver. El alivio no significa que no te haya dolido.",
+        source: "Volver a Mí",
+      },
+      benefits: {
+        title: "Lo que vas a trabajar",
+        items: [
+          { icon: "heart", title: "Permiso para sentir", text: "Entender el duelo de una separación y dejar que la emoción pase sin pelearte con ella." },
+          { icon: "shield", title: "Contacto y distancia", text: "Límites con tu ex, redes y recuerdos: la distancia que tu corazón necesita." },
+          { icon: "brain", title: "La historia completa", text: "Mirar lo que pasó de verdad, sin idealizar ni odiar, y reconocer tu parte sin culpa." },
+          { icon: "leaf", title: "Perdonar no es volver", text: "El perdón que te libera y una carta de cierre para lo que nunca le dijiste." },
+          { icon: "users", title: "Hijos y familia", text: "Cuidar a los tuyos sin cargarlos con lo que te toca a ti." },
+          { icon: "sun", title: "Reconstruir", text: "Quién eres sin «nosotros», tu nueva vida práctica y volver a abrir el corazón cuando estés listo." },
+        ],
+      },
+      contents: {
+        title: "Índice del libro",
+        modules: [
+          { title: "Primera parte · Atravesar", detail: "Cap. 1 El duelo que nadie te explicó · Cap. 2 Emociones contradictorias · Cap. 3 Contacto y distancia." },
+          { title: "Segunda parte · Entender", detail: "Cap. 4 La historia completa · Cap. 5 Tu parte, sin culpa · Cap. 6 Cortar los hilos." },
+          { title: "Tercera parte · Soltar", detail: "Cap. 7 El perdón que te libera · Cap. 8 La carta de cierre · Cap. 9 Hijos y familia." },
+          { title: "Cuarta parte · Reconstruir", detail: "Cap. 10 Quién soy sin «nosotros» · Cap. 11 Tu nueva vida práctica · Cap. 12 Volver a abrir el corazón." },
+          { title: "Para las noches difíciles", detail: "Un plan y doce momentos con qué hacer en cada uno." },
+        ],
+      },
+      previews: [
+        { src: `${IMG}/products/volver-a-mi/page-1.webp`, caption: "Índice" },
+        { src: `${IMG}/products/volver-a-mi/page-2.webp`, caption: "Introducción" },
+        { src: `${IMG}/products/volver-a-mi/page-3.webp`, caption: "Para practicar" },
+        { src: `${IMG}/products/volver-a-mi/page-4.webp`, caption: "Para las noches difíciles" },
+      ],
+      audience: {
+        forWho: [
+          "Atraviesas un divorcio o una separación, reciente o de hace tiempo.",
+          "Sientes emociones contradictorias y quieres entenderlas.",
+          "Te cuesta poner distancia con tu ex o dejar de revisar sus redes.",
+          "Quieres reconstruir tu vida a tu ritmo, sin fingir que ya lo superaste.",
+        ],
+        notFor: [
+          "Vives violencia: tu seguridad va primero y necesitas apoyo especializado.",
+          "Buscas asesoría sobre custodia, pensión o bienes: para eso apóyate en un abogado.",
+        ],
+      },
+      includes: [
+        "Libro completo de 39 páginas",
+        "12 capítulos en 4 partes",
+        "Una práctica y una frase en cada capítulo",
+        "Guía «Para las noches difíciles»",
+      ],
+      faq: [
+        {
+          q: "¿Sirve si la decisión fue mía?",
+          a: "Sí. Quizá tú tomaste la decisión, te la comunicaron o fue un acuerdo: en todos los casos hay un duelo, y el libro te acompaña en cada uno.",
+        },
+        {
+          q: "¿Tengo que leerlo en orden?",
+          a: "Está pensado en cuatro partes, pero el duelo no es una línea recta: puedes avanzar, retroceder y volver a un capítulo semanas después.",
+        },
+      ],
+    },
+
+    // ─────────────────────────────── LA SABIA DESPIERTA ───────────────────────────────
+    {
+      id: "la-sabia-despierta-menopausia",
+      slug: "la-sabia-despierta",
+      askAddress: true,
+      name: "La Sabia Despierta · Menopausia emocional y espiritual",
+      summary:
+        "Libro para vivir la menopausia desde lo emocional y lo espiritual: nombrar lo que te pasa, habitar tu cuerpo y recibir a la sabia que eres.",
+      price: 99,
+      currency: "MXN",
+      file: "La-Sabia-Despierta-Menopausia.pdf",
+      badge: "Libro",
+      emblem: `${IMG}/emblems/sabia.svg`,
+      theme: {
+        accent: "#7A3570",
+        glow: "#B25A7A",
+        dark: "#221034",
+        surfaceAlt: "#F8EEF3",
+        line: "#EDDDE6",
+        pattern: STARS,
+      },
+      cover: {
+        image: `${IMG}/products/la-sabia-despierta/cover.webp`,
+        ratio: "1000 / 1500",
+        kicker: "Libro · Edición 2026",
+        title: "La Sabia Despierta",
+      },
+      specs: [
+        { label: "Formato", value: "Libro" },
+        { label: "Extensión", value: "46 páginas · 13 capítulos" },
+        { label: "Incluye", value: "Preguntas para tu consulta" },
+      ],
+      hero: {
+        eyebrow: "Menopausia emocional y espiritual",
+        headline: "No te estás apagando. *Estás cambiando de piel.*",
+        subheadline:
+          "Un libro para cuidar lo que duele y despertar lo que está naciendo: sofocos e insomnio, pero también enojo, deseo, identidad y sentido.",
+        bullets: [
+          "13 capítulos en 4 partes: nombrar, habitar el cuerpo, el fuego interior y la sabia",
+          "Una práctica y una frase para llevar contigo en cada capítulo",
+          "Frases para los días difíciles y preguntas para tu consulta",
+        ],
+      },
+      pain: {
+        title: "No te estás volviendo loca",
+        items: [
+          "Lloras sin motivo aparente o contestas con una furia que no reconoces.",
+          "Te despiertas a las tres de la mañana y pasas el día con niebla en la cabeza.",
+          "Los hijos se van, los padres envejecen y el trabajo pide más, todo a la vez.",
+          "Nadie te explicó esta etapa: en muchas familias se vivió en silencio.",
+        ],
+        solution:
+          "Lo que sientes tiene explicación en tu cuerpo y en tu vida. Y esta etapa también guarda un regalo: no es el final de tu juventud, es el principio de tu verdad.",
+      },
+      quote: {
+        text: "Lo que no se nombra, pesa el doble.",
+        source: "La Sabia Despierta",
+      },
+      benefits: {
+        title: "Lo que vas a trabajar",
+        items: [
+          { icon: "brain", title: "Entender tu cuerpo", text: "Qué son la perimenopausia y la menopausia, explicado con claridad para quitarte miedo." },
+          { icon: "moon", title: "Noches en vela", text: "Rituales para el descanso y para acompañar el calor, la niebla y la paciencia." },
+          { icon: "heart", title: "El duelo por la que fui", text: "Despedirte con amor de la mujer que fuiste y hacer las paces con el espejo." },
+          { icon: "spark", title: "El enojo sagrado", text: "Escuchar lo que tu furia quiere decir y poner límites sin culpa." },
+          { icon: "users", title: "Nido vacío y deseo", text: "Cuando los hijos se van, tu casa y tu cuerpo siguen siendo tuyos." },
+          { icon: "lotus", title: "Recibir a la sabia", text: "Tu nueva identidad, lo que sabes, tu legado y un ritual de paso." },
+        ],
+      },
+      contents: {
+        title: "Índice del libro",
+        modules: [
+          { title: "Primera parte · Nombrar", detail: "Cap. 1 Lo que está pasando en ti · Cap. 2 Las tres mujeres que has sido · Cap. 3 El duelo por la que fui." },
+          { title: "Segunda parte · Habitar el cuerpo", detail: "Cap. 4 El cuerpo que cambia · Cap. 5 Noches en vela · Cap. 6 Calor, niebla y paciencia." },
+          { title: "Tercera parte · El fuego interior", detail: "Cap. 7 El enojo sagrado · Cap. 8 Los límites de la mujer madura · Cap. 9 Nido vacío, casa llena de ti · Cap. 10 Deseo e intimidad." },
+          { title: "Cuarta parte · La sabia", detail: "Cap. 11 Tu nueva identidad · Cap. 12 Lo que sabes · Cap. 13 El ritual de paso." },
+          { title: "Para acompañarte", detail: "Frases para los días difíciles · Preguntas para tu consulta." },
+        ],
+      },
+      previews: [
+        { src: `${IMG}/products/la-sabia-despierta/page-1.webp`, caption: "Índice" },
+        { src: `${IMG}/products/la-sabia-despierta/page-2.webp`, caption: "Introducción" },
+        { src: `${IMG}/products/la-sabia-despierta/page-3.webp`, caption: "Primera parte · Nombrar" },
+        { src: `${IMG}/products/la-sabia-despierta/page-4.webp`, caption: "Frases para los días difíciles" },
+      ],
+      audience: {
+        forWho: [
+          "Estás en la perimenopausia o la menopausia y quieres entender lo que sientes.",
+          "Te sientes desbordada por cambios en tu cuerpo, tu casa y tu identidad.",
+          "Quieres vivir esta etapa como un umbral y no como un final.",
+          "Te gustaría leerlo y compartir el proceso con otras mujeres.",
+        ],
+        notFor: [
+          "Buscas un tratamiento médico: el libro acompaña lo emocional y espiritual, y te invita a cuidarte también con tu médica.",
+        ],
+      },
+      includes: [
+        "Libro completo de 46 páginas",
+        "13 capítulos en 4 partes",
+        "Una práctica y una frase en cada capítulo",
+        "Frases para los días difíciles y preguntas para tu consulta",
+      ],
+      faq: [
+        {
+          q: "¿Es un libro médico?",
+          a: "No. Habla del lado emocional y espiritual de la menopausia. Incluye una guía de preguntas para llevar a tu consulta, porque cuidarte con tu médica y cuidarte el alma se acompañan.",
+        },
+        {
+          q: "¿Sirve si estoy en la perimenopausia?",
+          a: "Sí. El libro explica la transición desde la perimenopausia, que suele comenzar en los cuarenta, hasta la posmenopausia.",
+        },
+      ],
+    },
+
+    // ─────────────────────────────── SANAR A TU NIÑO INTERIOR ───────────────────────────────
+    {
+      id: "sanar-a-tu-nino-interior",
+      slug: "sanar-a-tu-nino-interior",
+      askAddress: true,
+      name: "Sanar a tu Niño Interior · Las 5 heridas de la infancia",
+      summary:
+        "Libro para entender de dónde vienen tus reacciones, reconocer las cinco heridas de la infancia y cuidarte hoy desde el adulto que eres.",
+      price: 99,
+      currency: "MXN",
+      file: "Sanar-a-tu-Nino-Interior.pdf",
+      badge: "Libro",
+      emblem: `${IMG}/emblems/nino.svg`,
+      theme: {
+        accent: "#4B3AA8",
+        glow: "#6A76E0",
+        dark: "#150F38",
+        surfaceAlt: "#EFEEFB",
+        line: "#DEDCF3",
+        pattern: STARS,
+      },
+      cover: {
+        image: `${IMG}/products/sanar-a-tu-nino-interior/cover.webp`,
+        ratio: "1000 / 1500",
+        kicker: "Libro · Edición 2026",
+        title: "Sanar a tu Niño Interior",
+      },
+      specs: [
+        { label: "Formato", value: "Libro" },
+        { label: "Extensión", value: "49 páginas · 14 capítulos" },
+        { label: "En cada capítulo", value: "Una práctica y una frase" },
+      ],
+      hero: {
+        eyebrow: "Las 5 heridas de la infancia",
+        headline: "No elegiste lo que te pasó de niño. *Sí puedes elegir cómo te cuidas ahora.*",
+        subheadline:
+          "Mira con cuidado qué le faltó a esa parte tuya, cómo aprendió a protegerse y cómo darle hoy, desde el adulto que eres, lo que en su momento no recibió.",
+        bullets: [
+          "14 capítulos en 4 partes: comprender, las cinco heridas, cuidar e integrar",
+          "Rechazo, abandono, humillación, traición e injusticia, con sus máscaras",
+          "Una práctica y una frase para llevar contigo en cada capítulo",
+        ],
+      },
+      pain: {
+        title: "Tus reacciones tienen una historia",
+        items: [
+          "Un comentario pequeño te arruina el día entero.",
+          "Un silencio de alguien te deja sin dormir.",
+          "Necesitas tenerlo todo bajo control, no molestar o hacerlo todo perfecto.",
+          "Te vas antes de que te dejen, o te dicen que eres «muy sensible» o «muy exigente».",
+        ],
+        solution:
+          "Esas reacciones no son defectos: son estrategias que inventó un niño para sobrevivir. Sin buscar culpables, este libro te enseña a decirle a esa parte tuya: ya crecimos, ya estoy aquí, yo me encargo.",
+      },
+      quote: {
+        text: "Ese niño no necesita que lo arregles. Necesita que por fin alguien se quede.",
+        source: "Sanar a tu Niño Interior",
+      },
+      benefits: {
+        title: "Lo que vas a trabajar",
+        items: [
+          { icon: "brain", title: "Qué es el niño interior", text: "Una parte tuya que nunca se fue y cómo se formaron las heridas." },
+          { icon: "target", title: "Reconocer tu herida", text: "Señales para identificar cuál de las cinco heridas guía hoy tus reacciones." },
+          { icon: "shield", title: "Las cinco máscaras", text: "El que huye, el dependiente, el que carga con todo, el que controla y el perfecto." },
+          { icon: "heart", title: "Tu adulto protector", text: "Darte hoy lo que te faltó y las palabras que nunca te dijeron." },
+          { icon: "sun", title: "Volver a jugar", text: "La alegría también se aprende: recuperar el juego y el descanso sin culpa." },
+          { icon: "leaf", title: "Cuando la herida vuelve", text: "Recaer no es fracasar: un pacto de pequeños gestos para toda la vida." },
+        ],
+      },
+      contents: {
+        title: "Índice del libro",
+        modules: [
+          { title: "Primera parte · Comprender", detail: "Cap. 1 Qué es el niño interior · Cap. 2 Las cinco heridas y sus máscaras · Cap. 3 ¿Cuál es tu herida?" },
+          { title: "Segunda parte · Las cinco heridas", detail: "Cap. 4 Rechazo · Cap. 5 Abandono · Cap. 6 Humillación · Cap. 7 Traición · Cap. 8 Injusticia." },
+          { title: "Tercera parte · Cuidar", detail: "Cap. 9 Tu adulto protector · Cap. 10 Lo que te faltó · Cap. 11 Las palabras que nunca te dijeron · Cap. 12 Volver a jugar." },
+          { title: "Cuarta parte · Integrar", detail: "Cap. 13 Cuando la herida vuelve · Cap. 14 Un pacto para toda la vida." },
+          { title: "Frases para los días difíciles", detail: "Doce momentos y qué hacer en cada uno." },
+        ],
+      },
+      previews: [
+        { src: `${IMG}/products/sanar-a-tu-nino-interior/page-1.webp`, caption: "Índice" },
+        { src: `${IMG}/products/sanar-a-tu-nino-interior/page-2.webp`, caption: "Introducción" },
+        { src: `${IMG}/products/sanar-a-tu-nino-interior/page-3.webp`, caption: "Primera parte · Comprender" },
+        { src: `${IMG}/products/sanar-a-tu-nino-interior/page-4.webp`, caption: "Frases para los días difíciles" },
+      ],
+      audience: {
+        forWho: [
+          "Hay reacciones tuyas que no terminas de entender.",
+          "Te cuesta poner límites, confiar o descansar sin culpa.",
+          "Quieres mirar tu infancia con cuidado, sin juzgar a tus padres.",
+          "Buscas herramientas sencillas para los momentos en que la herida se activa.",
+        ],
+        notFor: [
+          "Buscas un tratamiento: si algo se abre demasiado, el acompañamiento de un profesional es parte del camino.",
+        ],
+      },
+      includes: [
+        "Libro completo de 49 páginas",
+        "14 capítulos en 4 partes",
+        "Una práctica y una frase en cada capítulo",
+        "Frases para los días difíciles",
+      ],
+      faq: [
+        {
+          q: "¿Tengo que recordar mi infancia con detalle?",
+          a: "No. El libro te propone mirar con cuidado y a tu ritmo. Te sugiere usar una foto tuya de niño; si no tienes ninguna, puedes imaginarte o hacer un dibujo.",
+        },
+        {
+          q: "¿Y si algo se abre demasiado?",
+          a: "Para, pon los pies en el piso, respira lento y retoma otro día. Si el malestar se queda, busca acompañamiento profesional: pedir ayuda es parte del camino.",
         },
       ],
     },

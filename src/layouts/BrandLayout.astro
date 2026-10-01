@@ -3,6 +3,7 @@ import "@/styles/global.css";
 import type { Brand, Theme } from "@/config/types";
 import BrandLogo from "@/components/BrandLogo.astro";
 import { mergeTheme, themeVars } from "@/lib/theme";
+import { isLocalUrl } from "@/lib/brand";
 
 interface Props {
   brand: Brand;
@@ -22,6 +23,8 @@ const pageTitle = title ? `${title} | ${brand.name}` : `${brand.name} · ${brand
 const pageDesc = description ?? brand.tagline;
 const origin = `https://${brand.domains[0]}`;
 const cssVars = `:root{${themeVars(t)}}`;
+// Pixel de Meta: no se carga en local para no ensuciar las estadísticas con pruebas.
+const pixelId = isLocalUrl(Astro.url.origin) ? undefined : brand.metaPixelId;
 ---
 
 <!doctype html>
@@ -43,6 +46,19 @@ const cssVars = `:root{${themeVars(t)}}`;
     {t.fontUrl && <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />}
     {t.fontUrl && <link rel="stylesheet" href={t.fontUrl} />}
     <style set:html={cssVars}></style>
+    {
+      pixelId && (
+        <script is:inline define:vars={{ pixelId }}>
+          !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+          n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+          document,'script','https://connect.facebook.net/en_US/fbevents.js');
+          fbq("init", pixelId);
+          fbq("track", "PageView");
+        </script>
+      )
+    }
   </head>
   <body>
     {!bare && brand.announcement && <div class="announce">{brand.announcement}</div>}

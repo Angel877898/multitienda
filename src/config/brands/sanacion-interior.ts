@@ -13,7 +13,7 @@ export const sanacionInterior: Brand = {
   heroArt: `${IMG}/flower.svg`,
   announcement: "Sanacion Interior",
   // Id del Pixel de Meta (Administrador de eventos → Conjuntos de datos). Ej: "1234567890123456".
-  metaPixelId: "2059703631318907",
+  metaPixelId: "2191005405161443",
 
   // Branding: noche morada con estrellas y oro (del logo y las portadas).
   theme: {
